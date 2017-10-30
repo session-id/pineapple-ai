@@ -1,6 +1,8 @@
 from game import *
 
-game = PineappleGame1()
+'''
+RANKINGS AND ROYALTIES
+'''
 
 royal_flush = compute_hand(['AD', 'KD', 'QD', 'TD', 'JD'])
 flush = compute_hand(['2H', '3H', '5H', '6H', 'KH'])
@@ -97,8 +99,70 @@ def royalties_test():
       ['3S', '3H', '8D', '8H', '8C'],
       ['6S', '6S', '7S', '7C', '7D']
     ]) is None
+  assert is_bust([triple_5_top, pair_2, full_house])
+  assert is_bust([triple_5_top, quad, full_house])
 
   print "Royalties test passed!"
 
 ranking_test()
 royalties_test()
+
+'''
+GAME LOGIC
+'''
+
+game = PineappleGame1()
+
+def start_state_test():
+  # Remove card from copy of initial state
+  start_state = game.get_start_state()
+  assert len(start_state.remaining) == 47
+  assert len(start_state.draw) == 5
+  start_state.remaining.remove('2C')
+  assert '2C' in game.cards
+
+  print 'Start state test passed!'
+
+def actions_test():
+  start_state = game.get_start_state()
+  # Make fake state with incongruous remaining
+  state = PineappleGame1State(
+      rows = [['AH'], ['AD', 'AS', '2D', '2S'], ['4H', '5H']],
+      draw = ['6H', '7H', 'AC'],
+      remaining = start_state.remaining
+    )
+  a = tuple(sorted([
+      (('6H', 0), ('7H', 0)),
+      (('6H', 0), ('7H', 1)),
+      (('6H', 0), ('7H', 2)),
+      (('6H', 1), ('7H', 0)),
+      (('6H', 1), ('7H', 2)),
+      (('6H', 2), ('7H', 0)),
+      (('6H', 2), ('7H', 1)),
+      (('6H', 2), ('7H', 2)),
+      (('6H', 0), ('AC', 0)),
+      (('6H', 0), ('AC', 1)),
+      (('6H', 0), ('AC', 2)),
+      (('6H', 1), ('AC', 0)),
+      (('6H', 1), ('AC', 2)),
+      (('6H', 2), ('AC', 0)),
+      (('6H', 2), ('AC', 1)),
+      (('6H', 2), ('AC', 2)),
+      (('7H', 0), ('AC', 0)),
+      (('7H', 0), ('AC', 1)),
+      (('7H', 0), ('AC', 2)),
+      (('7H', 1), ('AC', 0)),
+      (('7H', 1), ('AC', 2)),
+      (('7H', 2), ('AC', 0)),
+      (('7H', 2), ('AC', 1)),
+      (('7H', 2), ('AC', 2)),
+    ]))
+  if tuple(sorted(game.actions(state))) != a:
+    print sorted(game.actions(state))
+    print a
+    raise RuntimeError("Difference found!")
+
+  print 'Actions test passed!'
+
+start_state_test()
+actions_test()

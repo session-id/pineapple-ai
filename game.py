@@ -1,5 +1,7 @@
 from collections import namedtuple, defaultdict
+import copy
 import itertools
+import random
 
 # rows: list of lists for top, middle, bottom rows
 # draw: whatever has been drawn
@@ -7,7 +9,7 @@ import itertools
 PineappleGame1State = namedtuple('PineappleGame1State', ['rows', 'draw', 'remaining'])
 
 '''
-CONSTANTS
+GAME CONSTANTS
 '''
 CARD_VALUES = '23456789TJQKA'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
@@ -33,6 +35,15 @@ BOT_ROW_ROYALTIES = {
     'RoFl': 25
   }
 BOT_ROW_ROYALTIES = defaultdict(int, BOT_ROW_ROYALTIES)
+ROW_LENGTHS = [3, 5, 5]
+NUM_ROWS = 3
+
+'''
+PARAMETERS
+'''
+
+# Simulates actuality of getting swept, with opponent having 20% bust chance
+BUST_PENALTY = -6 * 0.8
 
 '''
 GLOBAL FUNCTIONS
@@ -136,17 +147,16 @@ def royalties(hand, row):
 
 # Returns whether or not the hands constitute a bust
 def is_bust(hands):
-  assert len(hands) == 3
+  assert len(hands) == NUM_ROWS
   return compare_hands(hands[0], hands[1]) > 0 or compare_hands(hands[1], hands[2]) > 0
 
-# Compute the total royalties earned from the provided triplet of rows
+# Compute the total royalties earned from the provided rows
 # Returns None on bust
-def total_royalties(triplet):
-  assert len(triplet) == 3
-  assert len(triplet[0]) == 3
-  assert len(triplet[1]) == 5
-  assert len(triplet[2]) == 5
-  hands = [compute_hand(cards) for cards in triplet]
+def total_royalties(rows):
+  assert len(rows) == NUM_ROWS
+  for i in xrange(NUM_ROWS):
+    assert len(rows[i]) == ROW_LENGTHS[i]
+  hands = [compute_hand(cards) for cards in rows]
   if is_bust(hands):
     return None
   return sum(royalties(hand, row) for row, hand in enumerate(hands))
@@ -160,18 +170,40 @@ class PineappleGame1(object):
   A game of Pineapple with only one player and no opponent cards shown.
   '''
   def __init__(self):
-    self.cards = [a + b for a, b in itertools.product(CARD_VALUES, 'CDHS')]
-    assert len(self.cards) == 52
-    self.init_remaining = set(self.cards)
+    cards = [a + b for a, b in itertools.product(CARD_VALUES, 'CDHS')]
+    assert len(cards) == 52
+    self.cards = set(cards)
+
+  # Randomly choose an initial 5 card draw and create start state
+  def get_start_state(self):
+    cards = copy.deepcopy(self.cards)
+    draw = random.sample(cards, 5)
+    for card in draw:
+      cards.remove(card)
+    return PineappleGame1State(rows=[[], [], []], draw=draw, remaining=cards)
+
+  # Returns a list of possible actions from the provided state. States are in the format:
+  # ((card1, placement1), (card2, placement2))
+  def actions(self, state):
+    remaining_capacities = [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
+    actions = []
+    placement_combos = []
+    for i in xrange(NUM_ROWS):
+        if remaining_capacities[i] > 0:
+          remaining_capacities[i] -= 1
+          for j in xrange(NUM_ROWS):
+            if remaining_capacities[j] > 0:
+              placement_combos += [(i, j)]
+          remaining_capacities[i] += 1      
+    for card1, card2 in itertools.combinations(state.draw, 2):
+      for i, j in placement_combos:
+        actions += [((card1, i), (card2, j))]        
+    return actions
 
   def is_end(self, state):
-    return len(self.rows[0]) == 3 and len(self.rows[1]) == 5 and len(self.rows[2]) == 5
+    return all(len(state.rows[i]) == ROW_LENGTHS[i] for i in range(NUM_ROWS))
 
   # Only call when is_end is true
   def utility(self, state):
     # TODO: compute royalties
-    raise NotImplementedError
-
-  def actions(self, state):
-    open_spaces = [len(x) for x in rows]
     raise NotImplementedError
