@@ -6,6 +6,9 @@ import itertools
 # remaining: set of remaining cards
 PineappleGame1State = namedtuple('PineappleGame1State', ['rows', 'draw', 'remaining'])
 
+'''
+CONSTANTS
+'''
 CARD_VALUES = '23456789TJQKA'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
@@ -31,9 +34,16 @@ BOT_ROW_ROYALTIES = {
   }
 BOT_ROW_ROYALTIES = defaultdict(int, BOT_ROW_ROYALTIES)
 
+'''
+GLOBAL FUNCTIONS
+'''
+
+# Return the value of the card (from 2 to 14)
 def card_value(card):
   return CARD_VALUES.index(card[0]) + 2
 
+# Compute the hand associated with the given cards
+# Hands are tuples with the form (hand_name, values...)
 def compute_hand(cards):
   # Sort cards descending
   cards.sort(lambda x, y: card_value(y) - card_value(x))
@@ -105,9 +115,10 @@ def compare_hands(hand1, hand2):
   elif HAND_ORDER_DICT[hand1[0]] < HAND_ORDER_DICT[hand2[0]]:
     return -1
   else:
-    assert len(hand1) == len(hand2)
-    return cmp(hand1[1:], hand2[1:])
+    min_len = min(len(hand1), len(hand2))
+    return cmp(hand1[1:min_len], hand2[1:min_len])
 
+# Compute the royalties associated with having the given hand on the given row
 def royalties(hand, row):
   if row == 0:
     if hand[0] == '2':
@@ -122,6 +133,27 @@ def royalties(hand, row):
   else:
     raise RuntimeError("Invalid row: {}".format(row))
   return 0
+
+# Returns whether or not the hands constitute a bust
+def is_bust(hands):
+  assert len(hands) == 3
+  return compare_hands(hands[0], hands[1]) > 0 or compare_hands(hands[1], hands[2]) > 0
+
+# Compute the total royalties earned from the provided triplet of rows
+# Returns None on bust
+def total_royalties(triplet):
+  assert len(triplet) == 3
+  assert len(triplet[0]) == 3
+  assert len(triplet[1]) == 5
+  assert len(triplet[2]) == 5
+  hands = [compute_hand(cards) for cards in triplet]
+  if is_bust(hands):
+    return None
+  return sum(royalties(hand, row) for row, hand in enumerate(hands))
+
+'''
+GAME OBJECT
+'''
 
 class PineappleGame1(object):
   '''

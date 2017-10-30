@@ -44,7 +44,12 @@ def ranking_test():
   assert compare_test(triple_5, two_pair) == 1
   assert compare_test(two_pair, pair_2) == 1
   assert compare_test(pair_2, pair_A) == -1
+  assert compare_test(pair_2_top, pair_A_top) == -1
   assert compare_test(pair_2, king_high) == 1
+
+  # Top vs Mid comparisons
+  assert compare_test(triple_5, triple_5_top) == 0
+  assert compare_test(pair_A, triple_5_top) == -1
 
   print "Ranking test passed!"
 
@@ -68,6 +73,30 @@ def royalties_test():
   assert royalties(quad, 2) == 10
   assert royalties(straight_flush, 2) == 15
   assert royalties(royal_flush, 2) == 25
+
+  # Total royalties
+  assert total_royalties([
+      ['AD', 'AD', 'KD'],
+      ['3S', '3H', '4D', '4H', '5C'],
+      ['6S', '6S', '7S', '7C', '7D']
+    ]) == 15
+  assert total_royalties([
+      ['AD', 'AD', 'KD'],
+      ['3S', '3H', '4D', '4H', '5C'],
+      ['6S', '6S', '7S', '7C', '8D']
+    ]) == 9
+
+  # Bust
+  assert total_royalties([
+      ['AD', 'AD', 'AC'],
+      ['3S', '3H', '4D', '4H', '5C'],
+      ['6S', '6S', '7S', '7C', '7D']
+    ]) is None
+  assert total_royalties([
+      ['AD', 'AD', 'AC'],
+      ['3S', '3H', '8D', '8H', '8C'],
+      ['6S', '6S', '7S', '7C', '7D']
+    ]) is None
 
   print "Royalties test passed!"
 
