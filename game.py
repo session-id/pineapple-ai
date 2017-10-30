@@ -15,7 +15,8 @@ class PineappleGame1State:
 '''
 GAME CONSTANTS
 '''
-CARD_VALUES = '23456789TJQKA'
+CARD_VALUES = 'VWXYZ23456789TJQKA'
+DECK_CARD_VALUES = '23456789TJQKA'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
 for i, hand_name in enumerate(HAND_ORDER):
@@ -41,6 +42,7 @@ BOT_ROW_ROYALTIES = {
 BOT_ROW_ROYALTIES = defaultdict(int, BOT_ROW_ROYALTIES)
 ROW_LENGTHS = [3, 5, 5]
 NUM_ROWS = 3
+FILL_CARDS = ['VF', 'WE', 'XE', 'YE', 'ZE']
 
 '''
 PARAMETERS
@@ -55,11 +57,18 @@ GLOBAL FUNCTIONS
 
 # Return the value of the card (from 2 to 14)
 def card_value(card):
-  return CARD_VALUES.index(card[0]) + 2
+  return CARD_VALUES.index(card[0]) - 3
 
 # Compute the hand associated with the given cards
 # Hands are tuples with the form (hand_name, values...)
 def compute_hand(cards):
+  # Pad cards with filler cards if incomplete
+  if len(cards) <= 3:
+    deficit = 3 - len(cards)
+  else:
+    deficit = 5 - len(cards)
+  cards += FILL_CARDS[:deficit]
+
   # Sort cards descending
   cards.sort(lambda x, y: card_value(y) - card_value(x))
   mults = []
@@ -174,7 +183,7 @@ class PineappleGame1(object):
   A game of Pineapple with only one player and opponent cards shown.
   '''
   def __init__(self):
-    cards = [a + b for a, b in itertools.product(CARD_VALUES, 'CDHS')]
+    cards = [a + b for a, b in itertools.product(DECK_CARD_VALUES, 'CDHS')]
     self.deck_size = 52
     self.cards = set(cards)
     assert len(self.cards) == self.deck_size
@@ -218,7 +227,7 @@ class PineappleGame1(object):
     placement_combos = find_assigns(0, num_to_play, remaining_capacities, [])   
     for cards in itertools.combinations(state.draw, num_to_play):
       for placements in placement_combos:
-        actions += [sorted(tuple((card, placement) for card, placement in zip(cards, placements)))]
+        actions += [tuple(sorted([(card, placement) for card, placement in zip(cards, placements)]))]
     return actions
 
   # Returns whether the given state is terminal by checking for full rows

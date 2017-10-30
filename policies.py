@@ -42,6 +42,7 @@ class RandomPolicy(BasePolicy):
   def get_action(self, state):
     actions = self.game.actions(state)
     return random.sample(actions, 1)[0]
+    
 
 class BaselinePolicy(BasePolicy):
   '''

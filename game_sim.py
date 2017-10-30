@@ -50,7 +50,7 @@ for game_num in range(args.num_games):
   if args.print_every_util:
     print "Game {} utility: {}".format(game_num, utility)
   else:
-    print "Game {:4} / {:4}\r".format(game_num, args.num_games),
+    print "Game {:4} / {:4}\r".format(game_num+1, args.num_games),
 
 print "\n"
 print "Average utility: {}".format(sum(utilities) / float(args.num_games))

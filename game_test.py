@@ -24,7 +24,6 @@ triple_5_top = compute_hand(['5H', '5D', '5C'])
 
 def ranking_test():
   def compare_test(hand1, hand2):
-    #print hand1, 'vs', hand2, ':', compare_hands(hand1, hand2)
     return compare_hands(hand1, hand2)
 
   assert compare_test(royal_flush, straight_flush) == 1
@@ -106,6 +105,30 @@ def royalties_test():
 
 ranking_test()
 royalties_test()
+
+'''
+PARTIAL HAND TESTING LOGIC
+'''
+
+p_triple_5 = compute_hand(['5D', '5S', '5H', '4H'])
+p_king_high = compute_hand(['2H', '6H', 'KS'])
+p_worse_king_high = compute_hand(['2H', '3H', '4H' 'KS'])
+p_two_pair = compute_hand(['2H', '2D','6H', '6C'])
+p_pair_2 = compute_hand(['2H', '2D', 'AH'])
+p_pair_A = compute_hand(['AD', 'AH', '6H'])
+p_worse_pair_A = compute_hand(['AD', 'AH'])
+
+def partial_ranking_test():
+  assert compare_hands(p_triple_5, p_two_pair) == 1
+  assert compare_hands(p_worse_pair_A, p_pair_A) == -1
+  assert compare_hands(p_pair_2, p_pair_2) == 0
+  assert compare_hands(p_pair_A, p_pair_2) == 1
+  assert compare_hands(p_king_high, p_worse_king_high) == 1
+  assert compare_hands(p_two_pair, p_pair_A) == 1
+
+  print "Partial ranking test passed!"
+
+partial_ranking_test()
 
 '''
 GAME LOGIC
