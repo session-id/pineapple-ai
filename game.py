@@ -234,13 +234,21 @@ class PineappleGame1(object):
   def is_end(self, state):
     return all(len(state.rows[i]) == ROW_LENGTHS[i] for i in range(NUM_ROWS))
 
+  # Utility function for certain policies to simulate the placement of cards according to
+  # an action
+  def sim_place_cards(self, state, action):
+    state = copy.deepcopy(state)
+    for card, placement in action:
+      state.rows[placement] += [card]
+    return state
+
   # Given the state and action, takes the action and then randomly simulates the drawing
   # of cards, returning a state.
   # Does not modify the provided state.
   # The input action does not need to be sorted.
   def get_random_outcome(self, state, action):
     state = copy.deepcopy(state)
-    action = sorted(action)
+    action = tuple(sorted(action))
     if action not in self.actions(state):
       raise RuntimeError("Illegal Action: {}".format(action))
     for card, placement in action:

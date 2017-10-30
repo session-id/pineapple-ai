@@ -24,10 +24,12 @@ class HumanPolicy(BasePolicy):
     while True:
       self.game.print_state(state)
       try:
-        # Action input format is Card1 Pos1 Card2 Pos2 ... CardN PosN
-        inp = raw_input("Action (space separated, case insensitive): ").upper()
+        # Action input format is Pos1 Pos2 ... PosN
+        # Example: 0 0 1 2 0
+        inp = raw_input("Card placements (space separated, x for discard): ").upper()
         inp = inp.split(' ')
-        action = sorted(tuple((inp[i], int(inp[i+1])) for i in range(0, len(inp), 2)))
+        draw = sorted(state.draw)
+        action = tuple(sorted((draw[i], int(inp[i])) for i in range(len(inp)) if inp[i] != 'X'))
         new_state = self.game.get_random_outcome(state, action) # Check if valid
         return action
       except Exception as e:
@@ -42,7 +44,7 @@ class RandomPolicy(BasePolicy):
   def get_action(self, state):
     actions = self.game.actions(state)
     return random.sample(actions, 1)[0]
-    
+
 
 class BaselinePolicy(BasePolicy):
   '''
@@ -101,3 +103,11 @@ class BaselinePolicy(BasePolicy):
         self.game.print_state(state)
         raise RuntimeError("Couldn't slot card anywhere!")
     return tuple(action)
+
+
+class NeverBustPolicy(BasePolicy):
+  '''
+  A policy that never plays a move that can potentially bust, optimizing a simple metric
+  that values potential outcomes according to a table
+  '''
+  pass
