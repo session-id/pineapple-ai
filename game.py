@@ -258,7 +258,7 @@ class PineappleGame1(object):
       if card not in state.remaining and\
           not any([card in row or card in state.draw for row in state.rows]):
         discarded += [card]
-    print 'Discard:', ' '.join(sorted(discarded))
+    print 'Discard:', ' '.join(sorted(discarded, lambda x, y: cmp(card_value(x), card_value(y))))
     for row in state.rows:
       print '| ' + ' '.join(row)
     print 'Draw:', ' '.join(sorted(state.draw))

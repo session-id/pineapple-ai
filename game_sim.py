@@ -1,4 +1,5 @@
 from game import PineappleGame1
+import policies
 
 game = PineappleGame1()
 
@@ -7,16 +8,13 @@ def prompt_bool():
 
 print "Play first?"
 state = game.get_start_state(hero_first=prompt_bool())
+policy = policies.HumanPolicy(game)
 
 while not game.is_end(state):
-  game.print_state(state)
-  try:
-    # Action input format is Card1 Pos1 Card2 Pos2 ... CardN PosN
-    inp = raw_input("Action (space separated, case insensitive): ").upper()
-    inp = inp.split(' ')
-    action = sorted(tuple((inp[i], int(inp[i+1])) for i in range(0, len(inp), 2)))
-    state = game.get_random_outcome(state, action)
-  except Exception as e:
-    print 'Invalid action: {}'.format(e)
+  action = policy.get_action(state)
+  state = game.get_random_outcome(state, action)
 
+# Only for human policy
+print "Final board:"
+game.print_state(state)
 print "Final utility:", game.utility(state)
