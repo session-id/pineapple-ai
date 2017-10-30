@@ -107,14 +107,14 @@ class BaselinePolicy(BasePolicy):
 
 class NeverBustPolicy(BasePolicy):
   '''
-  A policy that never plays a move that can potentially bust, optimizing a simple metric
-  that values potential outcomes according to a table
+  A policy that never plays a move that makes the current hierarchy of cards a bust. The policy
+  randomly samples from all viable moves.
   '''
   def get_action(self, state):
     actions = self.game.actions(state)
     def eval_action(action):
       outcome = self.game.sim_place_cards(state, action)
-      hands = [g.compute_hand(row) for row in state.rows]
+      hands = [g.compute_hand(row) for row in outcome.rows]
       return g.compare_hands(hands[1], hands[0]) >= 0 and g.compare_hands(hands[2], hands[1]) >= 0
     evals = [(eval_action(action), action) for action in actions]
     viable = [y for x, y in evals if x == max(evals)[0]]

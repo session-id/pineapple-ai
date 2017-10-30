@@ -117,6 +117,8 @@ p_two_pair = compute_hand(['2H', '2D','6H', '6C'])
 p_pair_2 = compute_hand(['2H', '2D', 'AH'])
 p_pair_A = compute_hand(['AD', 'AH', '6H'])
 p_worse_pair_A = compute_hand(['AD', 'AH'])
+p_ten_high = compute_hand(['TD'])
+p_seven_high = compute_hand(['2D', '6H', '7H'])
 
 def partial_ranking_test():
   assert compare_hands(p_triple_5, p_two_pair) == 1
@@ -125,6 +127,7 @@ def partial_ranking_test():
   assert compare_hands(p_pair_A, p_pair_2) == 1
   assert compare_hands(p_king_high, p_worse_king_high) == 1
   assert compare_hands(p_two_pair, p_pair_A) == 1
+  assert compare_hands(p_ten_high, p_seven_high) == 1
 
   print "Partial ranking test passed!"
 
