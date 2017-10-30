@@ -125,6 +125,10 @@ def start_state_test():
       break
   assert remove_card in game.cards
 
+  start_state = game.get_start_state(hero_first=False)
+  assert len(start_state.remaining) == 42
+  assert len(start_state.draw) == 5
+
   print 'Start state test passed!'
 
 def actions_test():

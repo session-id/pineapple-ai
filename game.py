@@ -6,7 +6,11 @@ import random
 # rows: list of lists for top, middle, bottom rows
 # draw: whatever has been drawn
 # remaining: set of remaining cards
-PineappleGame1State = namedtuple('PineappleGame1State', ['rows', 'draw', 'remaining'])
+class PineappleGame1State:
+  def __init__(self, rows, draw, remaining):
+    self.rows = rows
+    self.draw = draw
+    self.remaining = remaining
 
 '''
 GAME CONSTANTS
@@ -171,8 +175,9 @@ class PineappleGame1(object):
   '''
   def __init__(self):
     cards = [a + b for a, b in itertools.product(CARD_VALUES, 'CDHS')]
-    assert len(cards) == 52
+    self.deck_size = 52
     self.cards = set(cards)
+    assert len(self.cards) == self.deck_size
 
   # Randomly choose an initial 5 card draw and create start state
   def get_start_state(self, hero_first):
@@ -210,19 +215,33 @@ class PineappleGame1(object):
     placement_combos = find_assigns(0, num_to_play, remaining_capacities, [])   
     for cards in itertools.combinations(state.draw, num_to_play):
       for placements in placement_combos:
-        actions += [tuple((card, placement) for card, placement in zip(cards, placements))]        
+        actions += [sorted(tuple((card, placement) for card, placement in zip(cards, placements)))]
     return actions
 
   # Returns whether the given state is terminal by checking for full rows
   def is_end(self, state):
     return all(len(state.rows[i]) == ROW_LENGTHS[i] for i in range(NUM_ROWS))
 
+  # Given the state and action, takes the action and then randomly simulates the drawing
+  # of cards, returning a state.
+  # Does not modify the provided state.
   def get_random_outcome(self, state, action):
-    if action not in set(self.actions(state)):
+    state = copy.deepcopy(state)
+    action = sorted(action)
+    if action not in self.actions(state):
       raise RuntimeError("Illegal Action!")
     for card, placement in action:
       state.rows[placement] += [card]
-    raise NotImplementedError
+    if len(action) == 5 and self.deck_size - len(state.remaining) == 5:
+      opponent_draw = random.sample(state.remaining, 5)
+    else:
+      opponent_draw = random.sample(state.remaining, 2)
+    for card in opponent_draw:
+      state.remaining.remove(card)
+    state.draw = random.sample(state.remaining, 3)
+    for card in state.draw:
+      state.remaining.remove(card)
+    return state
 
   # Only call when is_end is true
   def utility(self, state):
@@ -231,3 +250,15 @@ class PineappleGame1(object):
     if royalties is None:
       return BUST_PENALTY
     return royalties
+
+  # Pretty print the state for display
+  def print_state(self, state):
+    discarded = []
+    for card in self.cards:
+      if card not in state.remaining and\
+          not any([card in row or card in state.draw for row in state.rows]):
+        discarded += [card]
+    print 'Discard:', ' '.join(sorted(discarded))
+    for row in state.rows:
+      print '| ' + ' '.join(row)
+    print 'Draw:', ' '.join(sorted(state.draw))
