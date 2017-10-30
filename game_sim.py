@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 
 from game import PineappleGame1, BUST_PENALTY
 import policies
@@ -60,7 +61,9 @@ for game_num in range(args.num_games):
   else:
     print "Game {:4} / {:4}\r".format(game_num+1, args.num_games),
 
+utilities = np.array(utilities)
+
 print "\n"
-print "Average utility: {}".format(sum(utilities) / float(args.num_games))
+print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(args.num_games))
 print "Average non_bust_utilities: {}".format(sum(non_bust_utilities) / float(args.num_games))
 print "Bust %: {} / {} = {}".format(busts, args.num_games, float(busts) / args.num_games)
