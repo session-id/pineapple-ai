@@ -194,10 +194,13 @@ class PineappleGame1(object):
   def num_cards_played(self, state):
     return sum(len(x) for x in state.rows)
 
+  def get_remaining_capacities(self, state):
+    return [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
+
   # Returns a list of possible actions from the provided state. States are in the format:
   # ((card1, placement1), (card2, placement2))
   def actions(self, state):
-    remaining_capacities = [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
+    remaining_capacities = self.get_remaining_capacities(state)
     actions = []
 
     def find_assigns(i, num_cards, remaining_capacities, cur_assign):
