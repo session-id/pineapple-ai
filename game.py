@@ -228,11 +228,12 @@ class PineappleGame1(object):
   # Given the state and action, takes the action and then randomly simulates the drawing
   # of cards, returning a state.
   # Does not modify the provided state.
+  # The input action does not need to be sorted.
   def get_random_outcome(self, state, action):
     state = copy.deepcopy(state)
     action = sorted(action)
     if action not in self.actions(state):
-      raise RuntimeError("Illegal Action!")
+      raise RuntimeError("Illegal Action: {}".format(action))
     for card, placement in action:
       state.rows[placement] += [card]
     if len(action) == 5 and self.deck_size - len(state.remaining) == 5:

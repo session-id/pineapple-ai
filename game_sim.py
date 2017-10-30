@@ -10,6 +10,8 @@ parser.add_argument('--policy', type=str, default='human',
                     help='policy to use (human/random/baseline)')
 parser.add_argument('--hero-first', action='store_true',
                     help='whether the hero goes first (default false)')
+parser.add_argument('--print-every-util', action='store_true',
+                    help='whether to print every single utility (default false)')
 args = parser.parse_args()
 
 policy_name_to_policy = {
@@ -45,8 +47,12 @@ for game_num in range(args.num_games):
   else:
     non_bust_utilities += [utility]
   utilities += [utility]
-  print "Game {} utility: {}".format(game_num, utility)
+  if args.print_every_util:
+    print "Game {} utility: {}".format(game_num, utility)
+  else:
+    print "Game {:4} / {:4}\r".format(game_num, args.num_games),
 
+print "\n"
 print "Average utility: {}".format(sum(utilities) / float(args.num_games))
 print "Average non_bust_utilities: {}".format(sum(non_bust_utilities) / float(args.num_games))
 print "Bust %: {} / {} = {}".format(busts, args.num_games, float(busts) / args.num_games)
