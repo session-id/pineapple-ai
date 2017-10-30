@@ -164,5 +164,31 @@ def actions_test():
 
   print 'Actions test passed!'
 
+def game_royalties_test():
+  # Make fake state with incongruous remaining
+  state = PineappleGame1State(
+      rows = [
+          ['AH', 'AC', '3D'],
+          ['AD', 'AS', '2D', '2S', '7S'],
+          ['4H', '5H', '6H', '7H', '8H']
+        ],
+      draw = None,
+      remaining = set()
+    )
+  assert game.utility(state) == 9 + 15
+  state = PineappleGame1State(
+      rows = [
+          ['3H', '3C', '3D'],
+          ['AD', 'AS', '2D', '2S', '7S'],
+          ['4H', '5H', '6H', '7H', '8H']
+        ],
+      draw = None,
+      remaining = set()
+    )
+  assert game.utility(state) == BUST_PENALTY
+
+  print "Game royalties test passed!"
+
 start_state_test()
 actions_test()
+game_royalties_test()

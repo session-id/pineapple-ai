@@ -205,5 +205,8 @@ class PineappleGame1(object):
 
   # Only call when is_end is true
   def utility(self, state):
-    # TODO: compute royalties
-    raise NotImplementedError
+    assert self.is_end(state)
+    royalties = total_royalties(state.rows)
+    if royalties is None:
+      return BUST_PENALTY
+    return royalties
