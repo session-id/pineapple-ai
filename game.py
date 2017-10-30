@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import itertools
 
 # rows: list of lists for top, middle, bottom rows
@@ -7,10 +7,29 @@ import itertools
 PineappleGame1State = namedtuple('PineappleGame1State', ['rows', 'draw', 'remaining'])
 
 CARD_VALUES = '23456789TJQKA'
-HAND_ORDER = reversed(['StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
+HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
 for i, hand_name in enumerate(HAND_ORDER):
   HAND_ORDER_DICT[hand_name] = i
+MID_ROW_ROYALTIES = {
+    '3': 2,
+    'St': 4,
+    'Fl': 8,
+    '3+2': 12,
+    '4': 20,
+    'StFl': 30,
+    'RoFl': 50
+  }
+MID_ROW_ROYALTIES = defaultdict(int, MID_ROW_ROYALTIES)
+BOT_ROW_ROYALTIES = {
+    'St': 2,
+    'Fl': 4,
+    '3+2': 6,
+    '4': 10,
+    'StFl': 15,
+    'RoFl': 25
+  }
+BOT_ROW_ROYALTIES = defaultdict(int, BOT_ROW_ROYALTIES)
 
 def card_value(card):
   return CARD_VALUES.index(card[0]) + 2
@@ -52,6 +71,8 @@ def compute_hand(cards):
         is_straight = True
         straight_high = 5
     if is_straight and is_flush:
+      if straight_mults[0][1] == 10:
+        return ("RoFl",)
       return ("StFl", straight_high)
     elif is_straight:
       return ("St", straight_high)
@@ -86,6 +107,21 @@ def compare_hands(hand1, hand2):
   else:
     assert len(hand1) == len(hand2)
     return cmp(hand1[1:], hand2[1:])
+
+def royalties(hand, row):
+  if row == 0:
+    if hand[0] == '2':
+      if hand[1] >= 6:
+        return hand[1] - 5
+    elif hand[0] == '3':
+      return hand[1] + 8
+  elif row == 1:
+    return MID_ROW_ROYALTIES[hand[0]]
+  elif row == 2:
+    return BOT_ROW_ROYALTIES[hand[0]]
+  else:
+    raise RuntimeError("Invalid row: {}".format(row))
+  return 0
 
 class PineappleGame1(object):
   '''
