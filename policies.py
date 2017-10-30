@@ -132,6 +132,7 @@ class HeuristicNeverBustPolicy(BasePolicy):
   '''
   def get_action(self, state):
     actions = self.game.actions(state)
+    # Heuristic hand values
     self.hand_values = {
         '1': 0,
         '2': 1,
