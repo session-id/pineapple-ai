@@ -67,7 +67,7 @@ def compute_hand(cards):
     deficit = 3 - len(cards)
   else:
     deficit = 5 - len(cards)
-  cards += FILL_CARDS[:deficit]
+  cards = cards + FILL_CARDS[:deficit]
 
   # Sort cards descending
   cards.sort(lambda x, y: card_value(y) - card_value(x))

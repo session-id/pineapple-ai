@@ -1,6 +1,6 @@
 import random
 
-from game import card_value
+import game as g
 
 class BasePolicy(object):
   '''
@@ -73,12 +73,12 @@ class BaselinePolicy(BasePolicy):
   def get_action(self, state):
     remaining_capacities = self.game.get_remaining_capacities(state)
     # Sort in decreasing order
-    draw = sorted(state.draw, lambda x, y: card_value(y) - card_value(x))
+    draw = sorted(state.draw, lambda x, y: g.card_value(y) - g.card_value(x))
     assert len(draw) == 5 or len(draw) == 3
     # Always take highest 2 cards
     if len(draw) == 3:
       draw = draw[:-1]
-    values = [card_value(card) for card in draw]
+    values = [g.card_value(card) for card in draw]
 
     action = []
     for i in range(len(values)):
@@ -110,4 +110,12 @@ class NeverBustPolicy(BasePolicy):
   A policy that never plays a move that can potentially bust, optimizing a simple metric
   that values potential outcomes according to a table
   '''
-  pass
+  def get_action(self, state):
+    actions = self.game.actions(state)
+    def eval_action(action):
+      outcome = self.game.sim_place_cards(state, action)
+      hands = [g.compute_hand(row) for row in state.rows]
+      return g.compare_hands(hands[1], hands[0]) >= 0 and g.compare_hands(hands[2], hands[1]) >= 0
+    evals = [(eval_action(action), action) for action in actions]
+    viable = [y for x, y in evals if x == max(evals)[0]]
+    return random.sample(viable, 1)[0]
