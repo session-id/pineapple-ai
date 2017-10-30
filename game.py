@@ -167,7 +167,7 @@ GAME OBJECT
 
 class PineappleGame1(object):
   '''
-  A game of Pineapple with only one player and no opponent cards shown.
+  A game of Pineapple with only one player and opponent cards shown.
   '''
   def __init__(self):
     cards = [a + b for a, b in itertools.product(CARD_VALUES, 'CDHS')]
@@ -175,33 +175,54 @@ class PineappleGame1(object):
     self.cards = set(cards)
 
   # Randomly choose an initial 5 card draw and create start state
-  def get_start_state(self):
+  def get_start_state(self, hero_first):
     cards = copy.deepcopy(self.cards)
+    if not hero_first:
+      opponent_draw = random.sample(cards, 5)
+      for card in opponent_draw:
+        cards.remove(card)
     draw = random.sample(cards, 5)
     for card in draw:
       cards.remove(card)
     return PineappleGame1State(rows=[[], [], []], draw=draw, remaining=cards)
+
+  def num_cards_played(self, state):
+    return sum(len(x) for x in state.rows)
 
   # Returns a list of possible actions from the provided state. States are in the format:
   # ((card1, placement1), (card2, placement2))
   def actions(self, state):
     remaining_capacities = [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
     actions = []
-    placement_combos = []
-    for i in xrange(NUM_ROWS):
-        if remaining_capacities[i] > 0:
-          remaining_capacities[i] -= 1
-          for j in xrange(NUM_ROWS):
-            if remaining_capacities[j] > 0:
-              placement_combos += [(i, j)]
-          remaining_capacities[i] += 1      
-    for card1, card2 in itertools.combinations(state.draw, 2):
-      for i, j in placement_combos:
-        actions += [((card1, i), (card2, j))]        
+
+    def find_assigns(i, num_cards, remaining_capacities, cur_assign):
+      if i == num_cards:
+        return [cur_assign]
+      all_assigns = []
+      for j in range(NUM_ROWS):
+        if remaining_capacities[j] > 0:
+          remaining_capacities[j] -= 1
+          all_assigns += find_assigns(i+1, num_cards, remaining_capacities, cur_assign + [j])
+          remaining_capacities[j] += 1
+      return all_assigns
+
+    num_to_play = 5 if len(state.draw) == 5 else 2
+    placement_combos = find_assigns(0, num_to_play, remaining_capacities, [])   
+    for cards in itertools.combinations(state.draw, num_to_play):
+      for placements in placement_combos:
+        actions += [tuple((card, placement) for card, placement in zip(cards, placements))]        
     return actions
 
+  # Returns whether the given state is terminal by checking for full rows
   def is_end(self, state):
     return all(len(state.rows[i]) == ROW_LENGTHS[i] for i in range(NUM_ROWS))
+
+  def get_random_outcome(self, state, action):
+    if action not in set(self.actions(state)):
+      raise RuntimeError("Illegal Action!")
+    for card, placement in action:
+      state.rows[placement] += [card]
+    raise NotImplementedError
 
   # Only call when is_end is true
   def utility(self, state):

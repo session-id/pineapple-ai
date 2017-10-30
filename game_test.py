@@ -115,16 +115,20 @@ game = PineappleGame1()
 
 def start_state_test():
   # Remove card from copy of initial state
-  start_state = game.get_start_state()
+  start_state = game.get_start_state(hero_first=True)
   assert len(start_state.remaining) == 47
   assert len(start_state.draw) == 5
-  start_state.remaining.remove('2C')
-  assert '2C' in game.cards
+  removal_cards = ['2C', '3C', '4C', '5C']
+  for remove_card in removal_cards:
+    if remove_card not in start_state.draw:
+      start_state.remaining.remove(remove_card)
+      break
+  assert remove_card in game.cards
 
   print 'Start state test passed!'
 
 def actions_test():
-  start_state = game.get_start_state()
+  start_state = game.get_start_state(hero_first=True)
   # Make fake state with incongruous remaining
   state = PineappleGame1State(
       rows = [['AH'], ['AD', 'AS', '2D', '2S'], ['4H', '5H']],
@@ -161,6 +165,10 @@ def actions_test():
     print sorted(game.actions(state))
     print a
     raise RuntimeError("Difference found!")
+
+  # Some combinatorics
+  num_opening = 2 * 2 * 10 + 10 * 2 ** 3 + 5 * 2 ** 4 + 2 ** 5
+  assert len(game.actions(start_state)) == num_opening
 
   print 'Actions test passed!'
 
