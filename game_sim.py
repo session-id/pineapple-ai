@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description='Simulate policy on pineapple.')
 parser.add_argument('--num-games', type=int, default=1,
                     help='number of games to play')
 parser.add_argument('--policy', type=str, default='human',
-                    help='policy to use (human/random/baseline/neverbest)')
+                    help='policy to use (human/random/baseline/neverbest/heuristic_neverbust)')
 parser.add_argument('--hero-first', action='store_true',
                     help='whether the hero goes first (default false)')
 parser.add_argument('--print-every-util', action='store_true',
@@ -21,6 +21,7 @@ policy_name_to_policy = {
   'baseline': policies.BaselinePolicy,
   'random': policies.RandomPolicy,
   'neverbust': policies.NeverBustPolicy,
+  'heuristic_neverbust': policies.HeuristicNeverBustPolicy,
 }
 
 def prompt_bool():

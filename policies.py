@@ -119,3 +119,34 @@ class NeverBustPolicy(BasePolicy):
     evals = [(eval_action(action), action) for action in actions]
     viable = [y for x, y in evals if x == max(evals)[0]]
     return random.sample(viable, 1)[0]
+
+
+class HeuristicNeverBustPolicy(BasePolicy):
+  '''
+  A policy that never plays a move that makes the current hierarchy of cards a bust. Within viable
+  moves, it attempts to greedily form hands to maximize the total sum of hand values as denoted by
+  a heuristic table.
+  '''
+  def get_action(self, state):
+    actions = self.game.actions(state)
+    self.hand_values = {
+        '1': 0,
+        '2': 1,
+        '2+2': 2,
+        '3': 4,
+        'St': 8,
+        'Fl': 8,
+        '3+2': 12,
+        '4': 20,
+        'StFl': 30,
+        'RoFl': 50  
+      }
+    def eval_action(action):
+      outcome = self.game.sim_place_cards(state, action)
+      hands = [g.compute_hand(row) for row in outcome.rows]
+      total_value = sum(self.hand_values[hand[0]] for hand in hands)
+      return (g.compare_hands(hands[1], hands[0]) >= 0 and g.compare_hands(hands[2], hands[1]) >= 0,
+              total_value)
+    evals = [(eval_action(action), action) for action in actions]
+    viable = [y for x, y in evals if x == max(evals)[0]]
+    return random.sample(viable, 1)[0]
