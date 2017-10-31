@@ -48,21 +48,26 @@ for game_num in range(args.num_games):
         print "Action:", action
       state = game.get_random_outcome(state, action)
 
-    if type(policy) == policies.HumanPolicy:
-      print "Final board:"
-      game.print_state(state)
     utility = game.utility(state)
     if utility == BUST_PENALTY:
       busts += 1
     else:
       non_bust_utilities += [utility]
     utilities += [utility]
-    if args.print_every_util:
+
+    if type(policy) == policies.HumanPolicy:
+      print "Final board:"
+      game.print_state(state)
+
+    if args.print_every_util or type(policy) == policies.HumanPolicy:
       print "Game {} utility: {}".format(game_num, utility)
     else:
       print "Game {:4} / {:4}\r".format(game_num+1, args.num_games),
+
+    if type(policy) == policies.HumanPolicy:
+      print "\n"
   # keyboard interrupt breaks early
-  except BaseException:
+  except KeyboardInterrupt as e:
     break
 
 utilities = np.array(utilities)
