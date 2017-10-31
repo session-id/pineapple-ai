@@ -59,6 +59,28 @@ GLOBAL FUNCTIONS
 def card_value(card):
   return CARD_VALUES.index(card[0]) - 3
 
+# Sort the provided cards according to rank. In increasing order if inc=True.
+def sort_cards(cards, inc=True):
+  if inc:
+    return sorted(cards, lambda x, y: cmp(card_value(x), card_value(y)))
+  else:
+    return sorted(cards, lambda x, y: -cmp(card_value(x), card_value(y)))
+
+# Turn a list of cards into a multiplicity table
+def cards_to_mults(cards):
+  cards = sort_cards(cards, inc=False)
+  cur_streak = 1
+  mults = []
+  for i in range(len(cards) - 1):
+    if cards[i][0] == cards[i+1][0]:
+      cur_streak += 1
+    else:
+      mults += [(cur_streak, card_value(cards[i]))]
+      cur_streak = 1
+  mults += [(cur_streak, card_value(cards[-1]))]
+  mults.sort(lambda x, y: -cmp(x, y))
+  return mults
+
 # Compute the hand associated with the given cards
 # Hands are tuples with the form (hand_name, values...)
 def compute_hand(cards):
@@ -70,17 +92,8 @@ def compute_hand(cards):
   cards = cards + FILL_CARDS[:deficit]
 
   # Sort cards descending
-  cards.sort(lambda x, y: card_value(y) - card_value(x))
-  mults = []
-  cur_streak = 1
-  for i in range(len(cards) - 1):
-    if cards[i][0] == cards[i+1][0]:
-      cur_streak += 1
-    else:
-      mults += [(cur_streak, card_value(cards[i]))]
-      cur_streak = 1
-  mults += [(cur_streak, card_value(cards[-1]))]
-  mults.sort(lambda x, y: -cmp(x, y))
+  cards = sort_cards(cards, False)
+  mults = cards_to_mults(cards)
 
   def to_hand_tuple(hand_name, mults):
     return tuple([hand_name] + [x[1] for x in mults])
@@ -279,7 +292,7 @@ class PineappleGame1(object):
       if card not in state.remaining and\
           not any([card in row or card in state.draw for row in state.rows]):
         discarded += [card]
-    print 'Discard:', ' '.join(sorted(discarded, lambda x, y: cmp(card_value(x), card_value(y))))
+    print 'Discard:', ' '.join(sort_cards(discarded))
     for row in state.rows:
       print '| ' + ' '.join(row)
     print 'Draw:', ' '.join(sorted(state.draw))
