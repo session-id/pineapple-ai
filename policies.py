@@ -155,3 +155,22 @@ class HeuristicNeverBustPolicy(BasePolicy):
     evals = [(eval_action(action), action) for action in actions]
     viable = [y for x, y in evals if x == max(evals)[0]]
     return random.sample(viable, 1)[0]
+
+
+# Might want to make this a subclass of RL Policy
+# TODO: implement feedback incorporation in game_sim.py
+class QLearningPolicy(BasePolicy):
+  def __init__(self):
+    # Initialize step size, weight vector, etc
+    # Add field to indicate whether training - this determines whether epsilon greedy policy is used
+    pass
+
+  def get_q(self, state, action):
+    # Return q value based on product of weight vector and feature
+    raise NotImplementedError
+
+  def get_action(self, state):
+    pass
+
+  def incorporate_feedback(self, state, action, rewards, new_state):
+    pass
