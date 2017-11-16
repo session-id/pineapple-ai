@@ -17,6 +17,7 @@ GAME CONSTANTS
 '''
 CARD_VALUES = 'VWXYZ23456789TJQKA'
 DECK_CARD_VALUES = '23456789TJQKA'
+SUITS = 'CDHS'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
 for i, hand_name in enumerate(HAND_ORDER):
@@ -68,6 +69,8 @@ def sort_cards(cards, inc=True):
 
 # Turn a list of cards into a multiplicity table
 def cards_to_mults(cards):
+  if len(cards) == 0:
+    return []
   cards = sort_cards(cards, inc=False)
   cur_streak = 1
   mults = []
