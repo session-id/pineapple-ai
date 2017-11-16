@@ -1,5 +1,7 @@
+from collections import defaultdict
 import random
 
+import feature_extractors
 import game as g
 
 class BasePolicy(object):
@@ -157,20 +159,65 @@ class HeuristicNeverBustPolicy(BasePolicy):
     return random.sample(viable, 1)[0]
 
 
-# Might want to make this a subclass of RL Policy
-# TODO: implement feedback incorporation in game_sim.py
-class QLearningPolicy(BasePolicy):
-  def __init__(self):
-    # Initialize step size, weight vector, etc
-    # Add field to indicate whether training - this determines whether epsilon greedy policy is used
-    pass
-
-  def get_q(self, state, action):
-    # Return q value based on product of weight vector and feature
+class RLPolicy(BasePolicy):
+  '''
+  Base class for all RL policies with incorporate_feedback.
+  '''
+  def incorporate_feedback(self, state, action, new_state):
     raise NotImplementedError
 
-  def get_action(self, state):
-    pass
 
-  def incorporate_feedback(self, state, action, rewards, new_state):
-    pass
+# TODO: implement feedback incorporation in game_sim.py
+class QLearningPolicy(RLPolicy):
+  '''
+  A class that uses linear approximations of Q values built off of features to guide actions taken while
+  learning optimal linear weights through feedback incorporation.
+  '''
+  def __init__(self, game, feature_extractor, exploration_prob=0.2):
+    '''
+    Input:
+      game: Pineapple game instance
+      feature_extractor: a function that extracts features from a given row. See feature_extractor.py for interface.
+      exploration_prob: initial probability of exploration
+    '''
+    # Initialize step size, weight vector, etc
+    # Add field to indicate whether training - this determines whether epsilon greedy policy is used
+    super(QLearningPolicy, self).__init__(game)
+    self.weight = defaultdict(float)
+    self.exploration_prob = exploration_prob
+    self.feature_extractor = feature_extractor
+
+  def get_features(self, state, action):
+    state = self.game.sim_place_cards(state, action)
+    num_to_draw = self.game.num_to_draw(state)
+    features = {}
+    for row_num, cards in enumerate(state.rows):
+      for k, v in self.feature_extractor(row_num, cards, state.remaining, num_to_draw).iteritems():
+        features[(row_num, k)] = v
+    return features
+
+  def get_q(self, state, action):
+    # Find exact solution if about to finish
+    final_state = self.game.sim_place_cards(state, action)
+    if self.game.is_end(final_state):
+      return self.game.utility(final_state)
+    # Otherwise use linear approximation
+    features = self.get_features(state, action)
+    return sum(self.weight[key] * features[key] for key in features)
+
+  def get_action(self, state):
+    actions = self.actions(state)
+    if random.random() < self.exploration_prob:
+      return random.choice(actions)
+    return max((self.get_q(state, action), action) for action in actions)[1]
+
+  def incorporate_feedback(self, state, action, new_state):
+    if self.game.is_end(new_state):
+      V_opt = self.game.utility(new_state)
+    else:
+      prediction = self.get_q(state, action)
+      V_opt = max(self.get_q(new_state, a) for a in self.actions(new_state))
+    features = self.get_features(state, action)
+    deviation = prediction - V_opt
+    for (name, value) in features:
+        self.weights[name] -= self.getStepSize() * deviation * value

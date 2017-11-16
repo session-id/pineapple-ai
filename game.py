@@ -219,6 +219,10 @@ class PineappleGame1(object):
   def num_cards_played(self, state):
     return sum(len(x) for x in state.rows)
 
+  def num_to_draw(self, state):
+    table = {0: 17, 5: 12, 7: 9, 9: 6, 11: 3, 13: 0}
+    return table[sum(len(x) for x in state.rows)]
+
   def get_remaining_capacities(self, state):
     return [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
 
