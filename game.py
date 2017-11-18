@@ -17,6 +17,7 @@ GAME CONSTANTS
 '''
 CARD_VALUES = 'VWXYZ23456789TJQKA'
 DECK_CARD_VALUES = '23456789TJQKA'
+SUITS = 'CDHS'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
 for i, hand_name in enumerate(HAND_ORDER):
@@ -68,6 +69,8 @@ def sort_cards(cards, inc=True):
 
 # Turn a list of cards into a multiplicity table
 def cards_to_mults(cards):
+  if len(cards) == 0:
+    return []
   cards = sort_cards(cards, inc=False)
   cur_streak = 1
   mults = []
@@ -215,6 +218,10 @@ class PineappleGame1(object):
 
   def num_cards_played(self, state):
     return sum(len(x) for x in state.rows)
+
+  def num_to_draw(self, state):
+    table = {0: 17, 5: 12, 7: 9, 9: 6, 11: 3, 13: 0}
+    return table[sum(len(x) for x in state.rows)]
 
   def get_remaining_capacities(self, state):
     return [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
