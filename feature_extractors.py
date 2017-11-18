@@ -12,7 +12,7 @@ SUITS = 'CDHS'
 DECK_SIZE = 52
 CARDS_PER_VALUE = 4
 CARDS_PER_SUIT = 13
-MIN_DECK_SIZE = 22
+MIN_DECK_SIZE = 18
 TOTAL_CARDS_SEEN = 17
 
 '''
@@ -73,31 +73,31 @@ def precompute_hand_probs():
 	output_file.write('\t'.join(parameters) + '\n')
 	
 	card_value = reference_card_values[0] 
-	for row_freq in range(CARDS_PER_VALUE):
-		deck_freq = CARDS_PER_VALUE - row_freq
-		for deck_size in range(MIN_DECK_SIZE, DECK_SIZE + 1):
-			# Build customized deck
-			deck = full_deck.copy()
-			deck -= set([a + b for a, b in itertools.product(card_value, 'CDHS')])
-			deck = set(list(deck)[:(deck_size - deck_freq)])
-			for i in range(deck_freq):
-				deck.add(card_value + SUITS[i])
-
-			for num_to_draw in range(TOTAL_CARDS_SEEN):
-				for target_freq in range(1, 5):
-					if (row_freq >= target_freq):
-						prob = 1.0
-					elif (num_to_draw == 0):
-						prob = 0.0
-					else:
-						num_cards_needed = target_freq - row_freq
-						if (num_cards_needed > deck_freq): 
-							continue
-						needed = (card_value, num_cards_needed)
-						prob = monte_carlo_sim(deck, num_to_draw, satisfies_hand, needed)
-					key = tuple([str(x) for x in [target_freq, row_freq, deck_freq, num_to_draw, deck_size]])
-					probability_lookup_table[key] = prob
-					output_file.write('\t'.join([str(x).rjust(9) for x in [prob, target_freq, row_freq, deck_freq, num_to_draw, deck_size]]) + '\n')
+	for target_freq in range(1, 5):
+		for row_freq in range(CARDS_PER_VALUE):
+			for deck_freq in range(CARDS_PER_VALUE - row_freq + 1):
+				for deck_size in range(MIN_DECK_SIZE, DECK_SIZE + 1):
+					# Build customized deck
+					if (target_freq > row_freq):
+						deck = full_deck.copy()
+						deck -= set([a + b for a, b in itertools.product(card_value, 'CDHS')])
+						deck = set(list(deck)[:(deck_size - deck_freq)])
+						for i in range(deck_freq):
+							deck.add(card_value + SUITS[i])
+					for num_to_draw in range(min(deck_size, TOTAL_CARDS_SEEN) + 1):
+						if (row_freq >= target_freq):
+							prob = 1.0
+						elif (num_to_draw == 0):
+							prob = 0.0
+						else:
+							num_cards_needed = target_freq - row_freq
+							if (num_cards_needed > deck_freq): 
+								continue
+							needed = (card_value, num_cards_needed)
+							prob = monte_carlo_sim(deck, num_to_draw, satisfies_hand, needed)
+						key = tuple([str(x) for x in [target_freq, row_freq, deck_freq, num_to_draw, deck_size]])
+						probability_lookup_table[key] = prob
+						output_file.write('\t'.join([str(x).rjust(9) for x in [prob, target_freq, row_freq, deck_freq, num_to_draw, deck_size]]) + '\n')
 	output_file.close()
 
 	print 'Straight'
@@ -135,7 +135,7 @@ def precompute_hand_probs():
 						deck.add(reference_card_values[idx] + SUITS[suit_idx])
 					needed.append(reference_card_values[idx])
 
-				for num_to_draw in range(num_empty_space, TOTAL_CARDS_SEEN):
+				for num_to_draw in range(num_empty_space, min(deck_size, TOTAL_CARDS_SEEN) + 1):
 					prob = monte_carlo_sim(deck, num_to_draw, satisfies_straight, set(needed))
 					key = tuple([str(x) for x in ['St', multiplicity, num_to_draw, deck_size]])
 					probability_lookup_table[key] = prob
@@ -163,9 +163,9 @@ def precompute_hand_probs():
 				deck = full_deck.copy()
 				deck -= set([a + b for a, b in itertools.product(DECK_CARD_VALUES, reference_suit)])
 				deck = set(list(deck)[:(deck_size - num_suit_left)])
-				deck |= set([a + b for a, b in itertools.product(reference_card_values[:num_suit_left], reference_suit)])
+				deck |= set([a + b for a, b in itertools.product(DECK_CARD_VALUES[:num_suit_left], reference_suit)])
 				needed = (reference_suit, num_empty_space)
-				for num_to_draw in range(num_empty_space, TOTAL_CARDS_SEEN):
+				for num_to_draw in range(num_empty_space, min(deck_size, TOTAL_CARDS_SEEN) + 1):
 					prob = monte_carlo_sim(deck, num_to_draw, satisfies_flush, needed)
 					key = tuple([str(x) for x in ['Fl', num_empty_space, num_suit_left, num_to_draw, deck_size]])
 					probability_lookup_table[key] = prob
@@ -223,13 +223,11 @@ def feature_extractor_1(row_num, cards, deck, num_to_draw):
 	for card_value in DECK_CARD_VALUES:
 		row_freq = row_card_freq[card_value]
 		deck_freq = deck_card_freq[card_value]
-		assert(deck_freq + row_freq == 4) 
 		for target_freq in range(1, 5):
 			if (target_freq == 4 and row_num == 0 or num_empty_space < target_freq - row_freq): 
 				continue
 			key = tuple([str(x) for x in [target_freq, row_freq, deck_freq, num_to_draw, deck_size]])
-			features[(str(target_freq), card_value)] = \
-				probability_lookup_table[key]
+			features[(str(target_freq), card_value)] = probability_lookup_table[key]
 
 	# Straight / Flush
 	if (row_num > 0):

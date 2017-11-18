@@ -13,6 +13,7 @@ def tests():
 	assert features[('Fl', 'C')] > 0.0
 
 full_deck = set([a + b for a, b in itertools.product(DECK_CARD_VALUES, 'CDHS')])
+# precompute_hand_probs()
 parse_probability_files()
 
 tests()
