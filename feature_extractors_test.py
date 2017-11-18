@@ -2,7 +2,7 @@ from feature_extractors import *
 from game import DECK_CARD_VALUES
 import itertools
 
-def row_0_tests():
+def tests():
 	# Testing single / pair / triple
 	features = feature_extractor_1(1, ['AC', '5C'], full_deck - set(['AC', '5C']), 10)
 	assert features[('1', 'A')] == 1.0
@@ -15,4 +15,4 @@ def row_0_tests():
 full_deck = set([a + b for a, b in itertools.product(DECK_CARD_VALUES, 'CDHS')])
 parse_probability_files()
 
-row_0_tests()
+tests()
