@@ -19,7 +19,7 @@ parser.add_argument('--verbose', action='store_true',
                     help='whether to print all states and actions')
 parser.add_argument('--exploration-prob', type=float, default=0.2,
                     help='for RL policies, probability of exploration')
-parser.add_argument('--step-size', type=float, default=0.1,
+parser.add_argument('--step-size', type=float, default=0.01,
                     help='step size for learning policies through gradient descent')
 parser.add_argument('--feature-extractor', type=str, default='feature_extractor_1',
                     help='feature extractor to use (feature_extractor_1)')
@@ -52,7 +52,7 @@ for game_num in range(args.num_test + args.num_train):
   # No exploration during testing
   if game_num == args.num_train:
     print "Training ended. Now testing:"
-    policy.exploration_prob = 0
+    policy.train = False
     
   try:
     state = game.get_start_state(hero_first=args.hero_first)

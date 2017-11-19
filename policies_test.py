@@ -1,3 +1,5 @@
+from argparse import Namespace
+
 import game as g
 import policies
 
@@ -9,7 +11,12 @@ def test_feature_extractor(row_num, cards, deck, num_to_draw):
   return {'row_num': row_num, 'num_to_draw': num_to_draw}
 
 game = g.PineappleGame1()
-policy = policies.QLearningPolicy(game, test_feature_extractor)
+args = Namespace()
+args.feature_extractor = 'feature_extractor_1'
+args.exploration_prob = 0.2
+policy = policies.QLearningPolicy(game, args)
+assert policy.exploration_prob == 0.2
+policy.feature_extractor = test_feature_extractor
 policy.weight[(1, 'row_num')] = -1
 policy.weight[(2, 'num_to_draw')] = 2
 state = game.get_start_state(False)

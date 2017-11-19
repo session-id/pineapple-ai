@@ -167,13 +167,12 @@ class RLPolicy(BasePolicy):
     raise NotImplementedError
 
 
-# TODO: implement feedback incorporation in game_sim.py
 class QLearningPolicy(RLPolicy):
   '''
   A class that uses linear approximations of Q values built off of features to guide actions taken while
   learning optimal linear weights through feedback incorporation.
   '''
-  def __init__(self, game, feature_extractor, exploration_prob=0.2):
+  def __init__(self, game, args):
     '''
     Input:
       game: Pineapple game instance
@@ -182,10 +181,18 @@ class QLearningPolicy(RLPolicy):
     '''
     # Initialize step size, weight vector, etc
     # Add field to indicate whether training - this determines whether epsilon greedy policy is used
-    super(QLearningPolicy, self).__init__(game)
-    self.weight = defaultdict(float)
-    self.exploration_prob = exploration_prob
-    self.feature_extractor = feature_extractor
+    super(QLearningPolicy, self).__init__(game, args)
+    if args.feature_extractor == 'feature_extractor_1':
+      self.feature_extractor = feature_extractors.feature_extractor_1
+    else:
+      raise RuntimeError("Feature extractor \"{}\" not found".format(args.feature_extractor))
+    self.exploration_prob = args.exploration_prob
+    self.train = True
+    self.step_size = args.step_size
+    self.weights = defaultdict(float)
+
+  def get_step_size(self):
+    return self.step_size
 
   def get_features(self, state, action):
     state = self.game.sim_place_cards(state, action)
@@ -203,21 +210,23 @@ class QLearningPolicy(RLPolicy):
       return self.game.utility(final_state)
     # Otherwise use linear approximation
     features = self.get_features(state, action)
-    return sum(self.weight[key] * features[key] for key in features)
+    return sum(self.weights[key] * features[key] for key in features)
 
   def get_action(self, state):
-    actions = self.actions(state)
-    if random.random() < self.exploration_prob:
+    actions = self.game.actions(state)
+    if self.train and random.random() < self.exploration_prob:
       return random.choice(actions)
     return max((self.get_q(state, action), action) for action in actions)[1]
 
   def incorporate_feedback(self, state, action, new_state):
+    if not self.train:
+      return
     if self.game.is_end(new_state):
-      V_opt = self.game.utility(new_state)
+      return
     else:
       prediction = self.get_q(state, action)
-      V_opt = max(self.get_q(new_state, a) for a in self.actions(new_state))
+      V_opt = max(self.get_q(new_state, a) for a in self.game.actions(new_state))
     features = self.get_features(state, action)
     deviation = prediction - V_opt
-    for (name, value) in features:
-        self.weights[name] -= self.getStepSize() * deviation * value
+    for (name, value) in features.iteritems():
+      self.weights[name] -= self.get_step_size() * deviation * value
