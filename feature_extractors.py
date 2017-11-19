@@ -229,60 +229,65 @@ def feature_extractor_1(row_num, cards, deck, num_to_draw):
 			key = tuple([str(x) for x in [target_freq, row_freq, deck_freq, num_to_draw, deck_size]])
 			features[(str(target_freq), card_value)] = probability_lookup_table[key]
 
+	# VL: Current quick fix to properly that sets straight probability with empty
+	# row to zero.
+	
 	# Straight / Flush
-	if (row_num > 0):
-		def get_multiplicity(deck_card_freq, needed):
-			multiplicity = []
-			for val in needed:
-				needed_card = DECK_CARD_VALUES[val]
-				multiplicity.append(deck_card_freq[needed_card])
-			return tuple(sorted(multiplicity))
+	if len(cards) > 0:
+		if (row_num > 0):
+			def get_multiplicity(deck_card_freq, needed):
+				multiplicity = []
+				for val in needed:
+					needed_card = DECK_CARD_VALUES[val]
+					multiplicity.append(deck_card_freq[needed_card])
+				return tuple(sorted(multiplicity))
 
-		# Straight
-		card_values = [DECK_CARD_VALUES.index(card[0]) for card in cards]
-		card_suits = [card[1] for card in cards]
-		max_value = max(card_values)
-		min_value = min(card_values)
+			# Straight
+			card_values = [DECK_CARD_VALUES.index(card[0]) for card in cards]
+			card_suits = [card[1] for card in cards]
 
-		# Checks for A-5 straight possibility
-		def firstStraight(card_values):
-			for val in card_values:
-				if (val > card_to_value['5'] and val < card_to_value['A']):
-					return False
-			return True
+			max_value = max(card_values)
+			min_value = min(card_values)
 
-		if (firstStraight(card_values)):
-			needed = []
-			for i in range(card_to_value['2'], card_to_value['5'] + 1):
-				if (i not in card_values):
-					needed.append(i)
-			if (card_to_value['A'] not in card_values): # Ace
-				needed.append(card_to_value['A'])
-			multiplicity = get_multiplicity(deck_card_freq, needed)
-			key = tuple(str(x) for x in ['St', multiplicity, num_to_draw, deck_size])
-			features[('St', '5')] = probability_lookup_table[key]
+			# Checks for A-5 straight possibility
+			def firstStraight(card_values):
+				for val in card_values:
+					if (val > card_to_value['5'] and val < card_to_value['A']):
+						return False
+				return True
 
-		if (max_value - min_value < 5):
-			for high_card in range(max(max_value, card_to_value['6']), min(min_value + 5, card_to_value['A'] + 1)):
+			if (firstStraight(card_values)):
 				needed = []
-				for i in range(high_card - 4, high_card + 1):
+				for i in range(card_to_value['2'], card_to_value['5'] + 1):
 					if (i not in card_values):
 						needed.append(i)
+				if (card_to_value['A'] not in card_values): # Ace
+					needed.append(card_to_value['A'])
 				multiplicity = get_multiplicity(deck_card_freq, needed)
 				key = tuple(str(x) for x in ['St', multiplicity, num_to_draw, deck_size])
-				features[('St', DECK_CARD_VALUES[high_card])] = probability_lookup_table[key]
+				features[('St', '5')] = probability_lookup_table[key]
 
-		# Flush
-		for suit in SUITS:
-			deck_suits = [card[1] for card in deck]
-			deck_suit_count = deck_suits.count(suit)
-			if (card_suits.count(suit) == num_cards):
-				for card_name in DECK_CARD_VALUES:
-					if (card_to_value[card_name] < max_value):
-						continue
-					num_cards_needed = ROW_LENGTHS[row_num] - num_cards
-					key = tuple([str(x) for x in ['Fl', num_cards_needed, deck_suit_count, num_to_draw, deck_size]])
-					features[('Fl', suit)] = probability_lookup_table[key]
+			if (max_value - min_value < 5):
+				for high_card in range(max(max_value, card_to_value['6']), min(min_value + 5, card_to_value['A'] + 1)):
+					needed = []
+					for i in range(high_card - 4, high_card + 1):
+						if (i not in card_values):
+							needed.append(i)
+					multiplicity = get_multiplicity(deck_card_freq, needed)
+					key = tuple(str(x) for x in ['St', multiplicity, num_to_draw, deck_size])
+					features[('St', DECK_CARD_VALUES[high_card])] = probability_lookup_table[key]
+
+			# Flush
+			for suit in SUITS:
+				deck_suits = [card[1] for card in deck]
+				deck_suit_count = deck_suits.count(suit)
+				if (card_suits.count(suit) == num_cards):
+					for card_name in DECK_CARD_VALUES:
+						if (card_to_value[card_name] < max_value):
+							continue
+						num_cards_needed = ROW_LENGTHS[row_num] - num_cards
+						key = tuple([str(x) for x in ['Fl', num_cards_needed, deck_suit_count, num_to_draw, deck_size]])
+						features[('Fl', suit)] = probability_lookup_table[key]
 
 	return features
 
