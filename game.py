@@ -244,7 +244,7 @@ class PineappleGame1(object):
       return all_assigns
 
     num_to_play = 5 if len(state.draw) == 5 else 2
-    placement_combos = find_assigns(0, num_to_play, remaining_capacities, [])   
+    placement_combos = find_assigns(0, num_to_play, remaining_capacities, [])
     for cards in itertools.combinations(state.draw, num_to_play):
       for placements in placement_combos:
         actions += [tuple(sorted([(card, placement) for card, placement in zip(cards, placements)]))]
