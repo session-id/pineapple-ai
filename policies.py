@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 import random
 
 import feature_extractors
@@ -190,6 +191,7 @@ class QLearningPolicy(RLPolicy):
     self.train = True
     self.step_size = args.step_size
     self.weights = defaultdict(float)
+    feature_extractors.parse_probability_files()
 
   def get_step_size(self):
     return self.step_size
@@ -228,5 +230,8 @@ class QLearningPolicy(RLPolicy):
       V_opt = max(self.get_q(new_state, a) for a in self.game.actions(new_state))
     features = self.get_features(state, action)
     deviation = prediction - V_opt
+    total_update = 0
     for (name, value) in features.iteritems():
       self.weights[name] -= self.get_step_size() * deviation * value
+      total_update += abs(self.get_step_size() * deviation * value)
+    # print "Total update:", total_update, "Deviation:", deviation, "len(features):", len(features) #,
