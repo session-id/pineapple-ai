@@ -69,10 +69,11 @@ for game_num in range(args.num_test + args.num_train):
       state = new_state
 
     utility = game.utility(state)
-    if utility == BUST_PENALTY:
-      busts += 1
-    else:
-      non_bust_utilities += [utility]
+    if game_num >= args.num_train:
+      if utility == BUST_PENALTY:
+        busts += 1
+      else:
+        non_bust_utilities += [utility]
     utilities += [utility]
 
     if type(policy) == policies.HumanPolicy:
@@ -96,9 +97,10 @@ for game_num in range(args.num_test + args.num_train):
 
 utilities = np.array(utilities)
 np.save('utilities', utilities)
+utilities = utilities[args.num_train:]
 game_num += 1
 
 print "\n"
-print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(game_num))
-print "Average non_bust_utilities: {}".format(sum(non_bust_utilities) / float(game_num))
-print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / game_num)
+print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(game_num - args.num_train))
+print "Average non_bust_utilities: {}".format(sum(non_bust_utilities) / float(game_num - args.num_train))
+print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (game_num - args.num_train))
