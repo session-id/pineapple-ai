@@ -22,7 +22,7 @@ parser.add_argument('--exploration-prob', type=float, default=0.2,
 parser.add_argument('--step-size', type=float, default=0.01,
                     help='step size for learning policies through gradient descent')
 parser.add_argument('--feature-extractor', type=str, default='feature_extractor_1',
-                    help='feature extractor to use (feature_extractor_1)')
+                    help='feature extractor to use (feature_extractor_1/feature_extractor_2)')
 args = parser.parse_args()
 
 policy_name_to_policy = {
