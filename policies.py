@@ -185,6 +185,8 @@ class QLearningPolicy(RLPolicy):
     super(QLearningPolicy, self).__init__(game, args)
     if args.feature_extractor == 'feature_extractor_1':
       self.feature_extractor = feature_extractors.feature_extractor_1
+    elif args.feature_extractor == 'feature_extractor_2':
+      self.feature_extractor = feature_extractors.feature_extractor_2
     else:
       raise RuntimeError("Feature extractor \"{}\" not found".format(args.feature_extractor))
     self.exploration_prob = args.exploration_prob
