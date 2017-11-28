@@ -292,3 +292,9 @@ def feature_extractor_1(row_num, cards, deck, num_to_draw):
 	return features
 
 
+# Feature_extractor_1 with additional information derived from input parameters
+def feature_extractor_2(row_num, cards, deck, num_to_draw):
+	features = feature_extractor_1(row_num, cards, deck, num_to_draw)
+	features[('Row Len', len(cards))] = 1
+	features[('Num To Draw', num_to_draw)] = 1
+	return features
