@@ -1,9 +1,11 @@
 from collections import defaultdict
 import math
+import numpy as np
 import random
 
 import feature_extractors
 import game as g
+import hand_optimizer
 
 class BasePolicy(object):
   '''
@@ -237,3 +239,27 @@ class QLearningPolicy(RLPolicy):
       self.weights[name] -= self.get_step_size() * deviation * value
       total_update += abs(self.get_step_size() * deviation * value)
     # print "Total update:", total_update, "Deviation:", deviation, "len(features):", len(features) #,
+
+
+class OracleEvalPolicy(BasePolicy):
+  '''
+  A policy that uses the oracle best case royalties averaged over several draws to optimize the
+  current action.
+  '''
+  def __init__(self, game, args):
+    super(OracleEvalPolicy, self).__init__(game, args)
+    self.num_sims = args.num_oracle_sims
+
+  def get_action(self, state):
+    actions = self.game.actions(state)
+    def eval_action(action):
+      outcome = self.game.sim_place_cards(state, action)
+      values = []
+      num_to_draw = int(math.ceil(self.game.num_to_draw(outcome) * 0.7))
+      for _ in xrange(self.num_sims):
+        draw = random.sample(outcome.remaining, num_to_draw)
+        values += [hand_optimizer.optimize_hand(outcome.rows, draw)]
+      values = np.array(values)
+      return np.mean(values)
+    eval_actions = [(eval_action(action), action) for action in actions]
+    return max(eval_actions)[1]

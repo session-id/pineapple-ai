@@ -10,7 +10,7 @@ parser.add_argument('--num-train', type=int, default=0,
 parser.add_argument('--num-test', type=int, default=1,
                     help='number of games to test policy on')
 parser.add_argument('--policy', type=str, default='human',
-                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning)')
+                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval)')
 parser.add_argument('--hero-first', action='store_true',
                     help='whether the hero goes first (default false)')
 parser.add_argument('--print-util-freq', type=int, default=-1,
@@ -23,6 +23,8 @@ parser.add_argument('--step-size', type=float, default=0.01,
                     help='step size for learning policies through gradient descent')
 parser.add_argument('--feature-extractor', type=str, default='feature_extractor_1',
                     help='feature extractor to use (feature_extractor_1/feature_extractor_2)')
+parser.add_argument('--num-oracle-sims', type=int, default=3,
+                    help='number of simulations for oracle_eval to run per action result')
 args = parser.parse_args()
 
 policy_name_to_policy = {
@@ -31,7 +33,8 @@ policy_name_to_policy = {
   'random': policies.RandomPolicy,
   'neverbust': policies.NeverBustPolicy,
   'heuristic_neverbust': policies.HeuristicNeverBustPolicy,
-  'q_learning': policies.QLearningPolicy
+  'q_learning': policies.QLearningPolicy,
+  'oracle_eval': policies.OracleEvalPolicy
 }
 
 def prompt_bool():

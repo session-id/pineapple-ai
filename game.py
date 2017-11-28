@@ -161,19 +161,19 @@ def compare_hands(hand1, hand2):
     return cmp(hand1[1:min_len], hand2[1:min_len])
 
 # Compute the royalties associated with having the given hand on the given row
-def royalties(hand, row):
-  if row == 0:
+def royalties(hand, row_num):
+  if row_num == 0:
     if hand[0] == '2':
       if hand[1] >= 6:
         return hand[1] - 5
     elif hand[0] == '3':
       return hand[1] + 8
-  elif row == 1:
+  elif row_num == 1:
     return MID_ROW_ROYALTIES[hand[0]]
-  elif row == 2:
+  elif row_num == 2:
     return BOT_ROW_ROYALTIES[hand[0]]
   else:
-    raise RuntimeError("Invalid row: {}".format(row))
+    raise RuntimeError("Invalid row_num: {}".format(row_num))
   return 0
 
 # Returns whether or not the hands constitute a bust
@@ -223,7 +223,7 @@ class PineappleGame1(object):
 
   def num_to_draw(self, state):
     table = {0: 17, 5: 12, 7: 9, 9: 6, 11: 3, 13: 0}
-    return table[sum(len(x) for x in state.rows)]
+    return table[self.num_cards_played(state)]
 
   def get_remaining_capacities(self, state):
     return [max_cards - len(row) for max_cards, row in zip(ROW_LENGTHS, state.rows)]
