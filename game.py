@@ -69,6 +69,10 @@ def sort_cards(cards, inc=True):
   else:
     return sorted(cards, lambda x, y: -cmp(card_value(x), card_value(y)))
 
+# Make the card of the provided value and suit
+def make_card(value, suit):
+  return str(CARD_VALUES[value + 3]) + suit
+
 # Turn a list of cards into a multiplicity table
 def cards_to_mults(cards):
   if len(cards) == 0:

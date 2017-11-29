@@ -14,6 +14,7 @@ def possible_hands(row, row_num, draw):
 
   flushes = []
   straights = []
+  straight_flushes = []
 
   if row_num >= 1:
     suit_counts = defaultdict(int)
@@ -38,23 +39,36 @@ def possible_hands(row, row_num, draw):
       all_presences.add(g.card_value(card))
       # Add ace at 0 for wheel
       if g.card_value(card) == 14:
-        all_presences.add(0)
+        all_presences.add(1)
     if len(row) >= 1:
       row_values = [g.card_value(card) for card in row]
       # Range must allow straight
-      if max(row_values) - min(row_values) <= 4:
-        min_start = max(max(row_values) - 4, 0)
+      if max(row_values) - min(row_values) <= 4 and len(set(row_values)) == len(row_values):
+        min_start = max(max(row_values) - 4, 1)
         max_start = min(min(row_values), 10)
-        for i in xrange(min_start, max_start + 1):
-          possible = True
-          for j in xrange(i, i + 5):
-            if j not in all_presences:
-              possible = False
+    else:
+      min_start = 1
+      max_start = 10
+    for i in xrange(min_start, max_start + 1):
+      possible = True
+      for j in xrange(i, i + 5):
+        if j not in all_presences:
+          possible = False
+          break
+      if possible:
+        straights += [('St', i + 4)]
+        for suit in g.SUITS:
+          straight_flush_possible = True
+          for value in xrange(i, i+5):
+            card = g.make_card(value, suit)
+            if card not in row and card not in draw:
+              straight_flush_possible = False
               break
-          if possible:
-            straights += [('St', i + 4)]
-
-    # TODO: Add straight flush
+          if straight_flush_possible:
+            if i == 10:
+              straight_flushes += [('RoFl', i+4, suit)]
+            else:
+              straight_flushes += [('StFl', i+4, suit)]
 
   # Check N of a kind possibilities
   num_left = (3 if row_num == 0 else 5) - len(row)
@@ -126,7 +140,7 @@ def possible_hands(row, row_num, draw):
       full_houses = []
       triples = []
 
-  all_hands = flushes + straights + singles + pairs + triples + quads + two_pairs + full_houses
+  all_hands = flushes + straights + singles + pairs + triples + quads + two_pairs + full_houses + straight_flushes
   return sorted(all_hands, lambda x, y: -g.compare_hands(x, y))
 
 # Given the hands in each row in abbreviated format, computes the total royalties
@@ -158,7 +172,18 @@ def is_makeable(rows, draw, combo, precom):
 
   for row_num, (row, hand) in enumerate(zip(rows, combo)):
     # 5 card hands
-    if hand[0] == 'St':
+    if hand[0] == 'StFl' or hand[0] == 'RoFl':
+      _, high_value, suit = hand
+      completion = []
+      for needed_value in xrange(high_value - 4, high_value + 1):
+        if needed_value == 1:
+          needed_value == 14
+        needed_card = g.make_card(needed_value, suit)
+        if needed_card not in row:
+          assert needed_card in draw
+          completion += [needed_card]
+      possible_completions += [[tuple(completion)]]
+    elif hand[0] == 'St':
       draw_possibilities = []
       for needed_value in xrange(hand[1] - 4, hand[1] + 1):
         if needed_value == 1:
@@ -224,6 +249,7 @@ def is_makeable(rows, draw, combo, precom):
           filler_avoid[row_num].add(value)
       for value in xrange(single_value, g.MAX_VALUE):
         filler_avoid[row_num].add(value)
+
     else:
       raise RuntimeError("Unrecognized hand type {}".format(hand))
 
