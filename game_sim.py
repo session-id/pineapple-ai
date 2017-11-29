@@ -10,7 +10,7 @@ parser.add_argument('--num-train', type=int, default=0,
 parser.add_argument('--num-test', type=int, default=1,
                     help='number of games to test policy on')
 parser.add_argument('--policy', type=str, default='human',
-                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval)')
+                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval/q_learning2)')
 parser.add_argument('--hero-first', action='store_true',
                     help='whether the hero goes first (default false)')
 parser.add_argument('--print-util-freq', type=int, default=-1,
@@ -22,9 +22,14 @@ parser.add_argument('--exploration-prob', type=float, default=0.2,
 parser.add_argument('--step-size', type=float, default=0.01,
                     help='step size for learning policies through gradient descent')
 parser.add_argument('--feature-extractor', type=str, default='feature_extractor_1',
-                    help='feature extractor to use (feature_extractor_1/feature_extractor_2)')
+                    help='feature extractor to use (feature_extractor_1/2/3). note: some feature extractors can only be used'
+                    'with q_learning2 (those that ingest state, action)')
 parser.add_argument('--num-oracle-sims', type=int, default=3,
                     help='number of simulations for oracle_eval to run per action result')
+parser.add_argument('--oracle-outcome-weighting', type=float, default=1.0,
+                    help='exponent for how outcomes are weighted for the oracle')
+parser.add_argument('--distinguish-draws', action='store_true',
+                    help='for feature extraction, whether to consider every num_to_draw differently')
 args = parser.parse_args()
 
 policy_name_to_policy = {
@@ -34,7 +39,8 @@ policy_name_to_policy = {
   'neverbust': policies.NeverBustPolicy,
   'heuristic_neverbust': policies.HeuristicNeverBustPolicy,
   'q_learning': policies.QLearningPolicy,
-  'oracle_eval': policies.OracleEvalPolicy
+  'oracle_eval': policies.OracleEvalPolicy,
+  'q_learning2': policies.QLearningPolicy2
 }
 
 def prompt_bool():

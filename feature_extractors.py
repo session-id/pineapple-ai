@@ -1,8 +1,20 @@
 from collections import defaultdict
-from game import DECK_CARD_VALUES, ROW_LENGTHS
 import itertools
 import numpy as np
 import random
+
+import hand_optimizer
+from game import DECK_CARD_VALUES, ROW_LENGTHS
+
+def name_to_extractor(name):
+	d = {
+		'feature_extractor_1': feature_extractor_1,
+		'feature_extractor_2': feature_extractor_2,
+		'feature_extractor_3': FeatureExtractor3
+	}
+	if name not in d:
+		raise RuntimeError("Feature extractor \"{}\" not found".format(name))
+	return d[name]
 
 '''
 Constants
@@ -306,3 +318,50 @@ def feature_extractor_2(row_num, cards, deck, num_to_draw):
 	features[('Row Len', len(cards))] = 1
 	features[('Num To Draw', num_to_draw)] = 1
 	return features
+
+
+class FeatureExtractor(object):
+	def __init__(self, game):
+		self.game = game
+
+	def default_weights(self):
+		return defaultdict(float)
+
+
+# An oracle based feature extractor
+class FeatureExtractor3(FeatureExtractor):
+	def default_weights(self):
+		return defaultdict(float, {
+				(3, 3): 1.0,
+				(6, 4): 0.25,
+				(6, 5): 0.5,
+				(6, 6): 0.25,
+				(9, 6): 0.25,
+				(9, 7): 0.5,
+				(9, 8): 0.15,
+				(9, 9): 0.1,
+				(12, 8): 0.2,
+				(12, 9): 0.5,
+				(12, 10): 0.15,
+				(12, 11): 0.1,
+				(12, 12): 0.05,
+			})
+
+	def extract(self, state, action):
+		state = self.game.sim_place_cards(state, action)
+		num_to_draw = self.game.num_to_draw(state)
+		ranges_and_sims = {
+			3: ([3], 20),
+			6: ([4, 5, 6], 8),
+			9: ([6, 7, 8, 9], 3),
+			12: ([8, 9, 10, 11, 12], 2)
+		}
+		features = {}
+		draw_range, num_sims = ranges_and_sims[num_to_draw]
+		for num_to_draw2 in draw_range:
+			total = 0.
+			for _ in xrange(num_sims):
+				draw = random.sample(state.remaining, num_to_draw2)
+				total += hand_optimizer.optimize_hand(state.rows, draw)
+			features[(num_to_draw, num_to_draw2)] = total / float(num_sims)
+		return features

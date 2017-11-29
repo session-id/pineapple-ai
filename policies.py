@@ -185,12 +185,8 @@ class QLearningPolicy(RLPolicy):
     # Initialize step size, weight vector, etc
     # Add field to indicate whether training - this determines whether epsilon greedy policy is used
     super(QLearningPolicy, self).__init__(game, args)
-    if args.feature_extractor == 'feature_extractor_1':
-      self.feature_extractor = feature_extractors.feature_extractor_1
-    elif args.feature_extractor == 'feature_extractor_2':
-      self.feature_extractor = feature_extractors.feature_extractor_2
-    else:
-      raise RuntimeError("Feature extractor \"{}\" not found".format(args.feature_extractor))
+    self.feature_extractor = feature_extractors.name_to_extractor(args.feature_extractor)
+    self.distinguish_draws = args.distinguish_draws
     self.exploration_prob = args.exploration_prob
     self.train = True
     self.step_size = args.step_size
@@ -206,7 +202,10 @@ class QLearningPolicy(RLPolicy):
     features = {}
     for row_num, cards in enumerate(state.rows):
       for k, v in self.feature_extractor(row_num, cards, state.remaining, num_to_draw).iteritems():
-        features[(row_num, k)] = v
+        if self.distinguish_draws:
+          features[(num_to_draw, row_num, k)] = v
+        else:
+          features[(row_num, k)] = v
     return features
 
   def get_q(self, state, action):
@@ -241,6 +240,19 @@ class QLearningPolicy(RLPolicy):
     # print "Total update:", total_update, "Deviation:", deviation, "len(features):", len(features) #,
 
 
+class QLearningPolicy2(QLearningPolicy):
+  '''
+  A version of QLearningPolicy above that uses feature extractors that work on generic state, action
+  pairs.
+  '''
+  def __init__(self, game, args):
+    super(QLearningPolicy2, self).__init__(game, args)
+    self.feature_extractor = self.feature_extractor(self.game)
+    self.weights = self.feature_extractor.default_weights()
+
+  def get_features(self, state, action):
+    return self.feature_extractor.extract(state, action)
+
 class OracleEvalPolicy(BasePolicy):
   '''
   A policy that uses the oracle best case royalties averaged over several draws to optimize the
@@ -249,6 +261,7 @@ class OracleEvalPolicy(BasePolicy):
   def __init__(self, game, args):
     super(OracleEvalPolicy, self).__init__(game, args)
     self.num_sims = args.num_oracle_sims
+    self.alpha = args.oracle_outcome_weighting
 
   def get_action(self, state):
     actions = self.game.actions(state)
@@ -256,10 +269,11 @@ class OracleEvalPolicy(BasePolicy):
       outcome = self.game.sim_place_cards(state, action)
       values = []
       num_to_draw = int(math.ceil(self.game.num_to_draw(outcome) * 0.7))
+      num_sims = self.num_sims
       for _ in xrange(self.num_sims):
         draw = random.sample(outcome.remaining, num_to_draw)
         values += [hand_optimizer.optimize_hand(outcome.rows, draw)]
       values = np.array(values)
-      return np.mean(values)
+      return (np.mean(np.sign(values) * np.abs(values) ** self.alpha)) ** (1. / self.alpha)
     eval_actions = [(eval_action(action), action) for action in actions]
     return max(eval_actions)[1]
