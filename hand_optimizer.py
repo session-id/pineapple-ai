@@ -187,7 +187,7 @@ def is_makeable(rows, draw, combo, precom):
       draw_possibilities = []
       for needed_value in xrange(hand[1] - 4, hand[1] + 1):
         if needed_value == 1:
-          needed_value == 14
+          needed_value = 14
         if needed_value not in precom['all_row_values'][row_num]:
           # Need to grab from draw
           possible_fills = precom['draw_values'][needed_value]
