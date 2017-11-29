@@ -10,6 +10,8 @@ parser.add_argument('--num-games', type=int, default=1000,
                     help='number of games to play')
 parser.add_argument('--num-cards', type=int, default=14,
                     help='number of cards to be dealt')
+parser.add_argument('--save-file', type=str, default='',
+                    help='file to save utilities to')
 
 args = parser.parse_args()
 
@@ -23,4 +25,6 @@ for iter_num in xrange(args.num_games):
 print ''
 
 utilities = np.array(utilities)
+if args.save_file != '':
+  np.save(args.save_file, utilities)
 print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(args.num_games))
