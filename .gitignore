@@ -1,4 +1,5 @@
 utilities.npy
+weights.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
