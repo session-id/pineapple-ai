@@ -46,6 +46,9 @@ def possible_hands(row, row_num, draw):
       if max(row_values) - min(row_values) <= 4 and len(set(row_values)) == len(row_values):
         min_start = max(max(row_values) - 4, 1)
         max_start = min(min(row_values), 10)
+      else:
+        min_start = 0
+        max_start = -1
     else:
       min_start = 1
       max_start = 10

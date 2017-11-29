@@ -27,4 +27,4 @@ import time
 # print optimize_hand([['TH', 'TC'], ['2H', '2D', '3S', '4C'], ['8S', '8C', 'TS']], ['7S', '7D', 'TD', 'JC', 'QS', '2C', '3C', '4D', '8H', 'TH'])
 # print optimize_hand([['TC'], ['2H', '2D', '3S', '4C'], ['8S', '8C', 'TS']], ['7S', '7D', 'TD', 'JC', 'QS', '2C', '3C', '4D', '8H', 'TH', '8D'], True)
 # print optimize_hand([['TC', 'AH'], ['2H', '2D', '3S', '4C'], ['8S', '8C', 'TS', 'TD', '8D']], ['TH', 'AS', 'AC'], True)
-# print optimize_hand([['AC', 'AD', 'AS'], ['7D'], []], ['2H', '2S', 'JC', '8C', '7H', 'TH', 'JH', 'QH', 'JS', '7C', '9H', 'AH', 'KH'], True)
+print optimize_hand([['AC', 'AD', 'AS'], [], []], ['7D', '2H', '2S', 'JC', '8C', '7H', 'TH', 'JH', 'QH', 'JS', '7C', '9H', 'AH', 'KH'], True)
