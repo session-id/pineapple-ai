@@ -42,6 +42,16 @@ Global variables
 card_to_value = {v:k for k, v in enumerate(DECK_CARD_VALUES)} # relative ordering of cards (2 is lowest, A is highest)
 probability_lookup_table = defaultdict(float) # all keys are tuples of strings, all values are floats
 
+# For comparison between rows
+proxy_hand_score = defaultdict(float, {
+	'1':0,
+	'2':2,
+	'3':10,
+	'St':15,
+	'Fl':20,
+	'4':50,
+})
+
 ### Converts an array into a map from array value to its count
 def get_frequency_map(arr):
 	freq = defaultdict(int)
@@ -318,6 +328,38 @@ def feature_extractor_2(row_num, cards, deck, num_to_draw):
 	features[('Row Len', len(cards))] = 1
 	features[('Num To Draw', num_to_draw)] = 1
 	return features
+
+### Feature Extractor compares the expected "score" of 2 rows, adjusted for card rank
+### Inputs:
+###		row_1, row_2		[int]: row numbers
+###		cards_1, cards_2 	[set]: sets of cards in the given row
+###		deck 				[set]: set of remaining cards in the form 4S (4 of spades), AC (ace of clubs), etc.
+###		num_to_draw 		[int]: remaining number of cards to draw
+### Output:
+### 	Return : 			[int]: 1 if row_1 has a higher expected score than row_2, else 0
+def feature_extractor_3a(row_1, row_2, cards_1, cards_2, deck, num_to_draw):
+
+	prob_1 = feature_extractor_1(row_1, cards_1, deck, num_to_draw)
+	EV_1 = sum([prob_1[x]*proxy_hand_score[x] for x in proxy_hand_score]) + sum([card_to_value[x] for i,x in cards_1])/100
+
+	prob_2 = feature_extractor_1(row_2, cards_2, deck, num_to_draw)
+	EV_2 = sum([prob_2[x]*proxy_hand_score[x] for x in proxy_hand_score]) + sum([card_to_value[x] for i,x in cards_2])/100
+
+	return 1 if (EV_1 > EV_2) else 0
+
+### Feature Extractor compares the expected "score" of 2 rows, adjusted for card rank
+### Inputs:
+###		cardset				[array]: array of sets = [cards_1, cards_2, cards_3]
+###		deck 				[set]: set of remaining cards in the form 4S (4 of spades), AC (ace of clubs), etc.
+###		num_to_draw 		[int]: remaining number of cards to draw
+### Output:
+### 	Return : 			[defaultdict(int)]: {(1,2): int, (2,3): int} where output[(m,n)] = 1 if EV_m > EV_n
+def feature_extractor_3(cardset, deck, num_to_draw):
+
+	return defaultdict(int, {
+			(1,2): feature_extractor_3a(1,2, cardset[1], cardset[2], deck, num_to_draw),
+			(2,3): feature_extractor_3a(2,3, cardset[2], cardset[3], deck, num_to_draw)
+		})
 
 
 class FeatureExtractor(object):
