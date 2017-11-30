@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import json
 
 from game import PineappleGame1, BUST_PENALTY
 import policies
@@ -103,6 +104,13 @@ for game_num in range(args.num_test + args.num_train):
   except KeyboardInterrupt as e:
     game_num -= 1
     break
+
+if isinstance(policy, policies.RLPolicy):
+  try:
+    with open('weights.json', 'w') as fp:
+      json.dump(policy.weights, fp, sort_keys=True, indent=2, separators=(',', ': '))
+  except Exception:
+    pass
 
 utilities = np.array(utilities)
 np.save('utilities', utilities)
