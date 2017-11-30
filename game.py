@@ -19,6 +19,7 @@ CARD_VALUES = 'VWXYZ23456789TJQKA'
 DECK_CARD_VALUES = '23456789TJQKA'
 MIN_VALUE = 2
 MAX_VALUE = 14
+FANTASYLAND_BONUS = 13.75 - 4
 SUITS = 'CDHS'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
@@ -57,6 +58,9 @@ BUST_PENALTY = -6 * 0.8
 '''
 GLOBAL FUNCTIONS
 '''
+
+def get_fantasyland_bonus():
+  return FANTASYLAND_BONUS
 
 # Return the value of the card (from 2 to 14)
 def card_value(card):
@@ -168,10 +172,12 @@ def compare_hands(hand1, hand2):
 def royalties(hand, row_num):
   if row_num == 0:
     if hand[0] == '2':
-      if hand[1] >= 6:
+      if hand[1] >= 12:
+        return hand[1] - 5 + get_fantasyland_bonus()
+      elif hand[1] >= 6:
         return hand[1] - 5
     elif hand[0] == '3':
-      return hand[1] + 8
+      return hand[1] + 8 + get_fantasyland_bonus()
   elif row_num == 1:
     return MID_ROW_ROYALTIES[hand[0]]
   elif row_num == 2:
@@ -289,6 +295,14 @@ class PineappleGame1(object):
     for card in state.draw:
       state.remaining.remove(card)
     return state
+
+  def is_fantasyland(self, state):
+    assert self.is_end(state)
+    hands = [compute_hand(cards) for cards in self.rows]
+    if is_bust(hands):
+      return False
+    hand = hands[0]
+    return (hand[0] == '2' and hand[1] >= 12) or hand[0] == 3
 
   # Only call when is_end is true
   def utility(self, state):
