@@ -11,7 +11,8 @@ parser.add_argument('--num-train', type=int, default=0,
 parser.add_argument('--num-test', type=int, default=1,
                     help='number of games to test policy on')
 parser.add_argument('--policy', type=str, default='human',
-                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval/q_learning2)')
+                    help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval'
+                         '/q_learning2/vs_oracle_eval)')
 parser.add_argument('--hero-first', action='store_true',
                     help='whether the hero goes first (default false)')
 parser.add_argument('--print-util-freq', type=int, default=-1,
@@ -41,6 +42,7 @@ policy_name_to_policy = {
   'heuristic_neverbust': policies.HeuristicNeverBustPolicy,
   'q_learning': policies.QLearningPolicy,
   'oracle_eval': policies.OracleEvalPolicy,
+  'vs_oracle_eval': policies.VarSimOracleEvalPolicy,
   'q_learning2': policies.QLearningPolicy2
 }
 
@@ -52,6 +54,7 @@ game = PineappleGame1()
 utilities = []
 non_bust_utilities = []
 busts = 0
+fantasylands = 0
 if args.policy not in policy_name_to_policy:
   raise RuntimeError('Unrecognized policy arg: {}'.format(args.policy))
 policy = policy_name_to_policy[args.policy](game, args)
@@ -79,14 +82,17 @@ for game_num in range(args.num_test + args.num_train):
       state = new_state
 
     utility = game.utility(state)
+    if game.is_fantasyland(state):
+      fantasylands += 1
     if game_num >= args.num_train:
       if utility == BUST_PENALTY:
         busts += 1
+        non_bust_utilities += [0.]
       else:
         non_bust_utilities += [utility]
     utilities += [utility]
 
-    if type(policy) == policies.HumanPolicy:
+    if args.verbose or type(policy) == policies.HumanPolicy:
       print "Final board:"
       game.print_state(state)
 
@@ -119,5 +125,6 @@ game_num += 1
 
 print "\n"
 print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(game_num - args.num_train))
-print "Average non_bust_utilities: {}".format(sum(non_bust_utilities) / float(game_num - args.num_train))
+print "Average utility (no bust penalty): {}".format(sum(non_bust_utilities) / float(game_num - args.num_train))
 print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (game_num - args.num_train))
+print "Fantasyland %: {} / {} = {}".format(fantasylands, game_num, float(fantasylands) / (game_num - args.num_train))
