@@ -154,8 +154,10 @@ def total_royalties(hands):
   return total
 
 # Returns whether or not the specified combo can be made from rows and draw. Possible input hands:
+# ('RoFl', High)
+# ('StFl', High)
 # ('Fl', Suit)
-# ('St', End Card)
+# ('St', High)
 # ('3+2', Triple, Pair)
 # ('2+2', High, Low)
 # ('4', High)
