@@ -253,6 +253,7 @@ class QLearningPolicy2(QLearningPolicy):
   def get_features(self, state, action):
     return self.feature_extractor.extract(state, action)
 
+
 class OracleEvalPolicy(BasePolicy):
   '''
   A policy that uses the oracle best case royalties averaged over several draws to optimize the
@@ -268,7 +269,11 @@ class OracleEvalPolicy(BasePolicy):
     def eval_action(action):
       outcome = self.game.sim_place_cards(state, action)
       values = []
-      num_to_draw = int(math.ceil(self.game.num_to_draw(outcome) * 0.7))
+      if self.game.num_to_draw(outcome) == 0:
+        return self.game.utility(outcome)
+      num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3}
+      # num_to_draw = int(math.ceil(self.game.num_to_draw(outcome) * 0.7))
+      num_to_draw = num_to_draw_map[self.game.num_to_draw(outcome)]
       num_sims = self.num_sims
       for _ in xrange(self.num_sims):
         draw = random.sample(outcome.remaining, num_to_draw)
@@ -276,4 +281,82 @@ class OracleEvalPolicy(BasePolicy):
       values = np.array(values)
       return (np.mean(np.sign(values) * np.abs(values) ** self.alpha)) ** (1. / self.alpha)
     eval_actions = [(eval_action(action), action) for action in actions]
+    # print "Estimated value: {}".format(max(eval_actions)[0])
     return max(eval_actions)[1]
+
+
+class VarSimOracleEvalPolicy(BasePolicy):
+  '''
+  OracleEvalPolicy with a different exploration policy that explores the best actions in greater depth.
+  '''
+  def __init__(self, game, args):
+    super(VarSimOracleEvalPolicy, self).__init__(game, args)
+    self.num_sims = args.num_oracle_sims
+
+  def get_action(self, state):
+    actions = self.game.actions(state)
+    outcomes = [(self.game.sim_place_cards(state, action), action) for action in actions]
+    if self.game.num_to_draw(outcomes[0][0]) == 0:
+      # Just return utilities
+      eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
+      return max(eval_utilities)[1]
+    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3}
+
+    def interpolate_action(prev, outcome, num_sims, round_num):
+      values = []
+      if self.game.num_to_draw(outcome) == 0:
+        return self.game.utility(outcome)
+      num_to_draw = num_to_draw_map[self.game.num_to_draw(outcome)]
+      for _ in xrange(num_sims):
+        draw = random.sample(outcome.remaining, num_to_draw)
+        values += [hand_optimizer.optimize_hand(outcome.rows, draw)]
+      values = np.array(values)
+      return prev * (1 - 1. / round_num) + np.mean(values) / round_num
+
+    outcomes_with_histories = [(0., outcome, action) for outcome, action in outcomes]
+    round_num = 1.
+    while len(outcomes_with_histories) > 1:
+      outcomes_with_histories = [(interpolate_action(prev, outcome, self.num_sims, round_num), outcome, action)
+                                  for prev, outcome, action in outcomes_with_histories]
+      outcomes_with_histories.sort()
+      outcomes_with_histories = outcomes_with_histories[len(outcomes_with_histories) / 2:]
+      round_num += 1
+    return outcomes_with_histories[0][2]
+
+
+class TDLearningPolicy(RLPolicy):
+  '''
+  A class that uses linear approximations of Value functions built off of features to guide actions taken while
+  learning optimal linear weights through feedback incorporation.
+  '''
+  def __init__(self, game, args):
+    '''
+    Input:
+      game: Pineapple game instance
+      feature_extractor: a function that extracts features from a given row. See feature_extractor.py for interface.
+      exploration_prob: initial probability of exploration
+    '''
+    # Initialize step size, weight vector, etc
+    # Add field to indicate whether training - this determines whether epsilon greedy policy is used
+    super(TDLearningPolicy, self).__init__(game, args)
+    self.feature_extractor = feature_extractors.name_to_extractor(args.feature_extractor)
+    self.exploration_prob = args.exploration_prob
+    self.train = True
+    self.step_size = args.step_size
+    self.weights = defaultdict(float)
+    feature_extractors.parse_probability_files()
+
+  def get_step_size(self):
+    return self.step_size
+
+  def get_features(self, state, action):
+    pass
+
+  def get_q(self, state, action):
+    pass
+
+  def get_action(self, state):
+    pass
+
+  def incorporate_feedback(self, state, action, new_state):
+    pass
