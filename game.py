@@ -298,7 +298,7 @@ class PineappleGame1(object):
 
   def is_fantasyland(self, state):
     assert self.is_end(state)
-    hands = [compute_hand(cards) for cards in self.rows]
+    hands = [compute_hand(cards) for cards in state.rows]
     if is_bust(hands):
       return False
     hand = hands[0]
