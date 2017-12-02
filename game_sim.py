@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import json
 
-from game import PineappleGame1, BUST_PENALTY
+from game import PineappleGame1, BUST_PENALTY, FANTASYLAND_BONUS, FANTASYLAND_WORTH
 import policies
 
 parser = argparse.ArgumentParser(description='Simulate policy on pineapple.')
@@ -82,15 +82,16 @@ for game_num in range(args.num_test + args.num_train):
       state = new_state
 
     utility = game.utility(state)
+    utilities += [utility]
     if game.is_fantasyland(state):
       fantasylands += 1
+      utility -= FANTASYLAND_BONUS # For calculation below
     if game_num >= args.num_train:
       if utility == BUST_PENALTY:
         busts += 1
         non_bust_utilities += [0.]
       else:
         non_bust_utilities += [utility]
-    utilities += [utility]
 
     if args.verbose or type(policy) == policies.HumanPolicy:
       print "Final board:"
@@ -119,12 +120,25 @@ if isinstance(policy, policies.RLPolicy):
     pass
 
 utilities = np.array(utilities)
+non_bust_utilities = np.array(non_bust_utilities)
 np.save('utilities', utilities)
 utilities = utilities[args.num_train:]
 game_num += 1
+num_test_played = game_num - args.num_train
+
+fl = float(fantasylands) / num_test_played
+fl_std = np.sqrt(fl * (1 - fl) / num_test_played)
+u = np.mean(non_bust_utilities)
+u_std = np.std(non_bust_utilities) / np.sqrt(num_test_played)
+num_std = np.sqrt(u_std ** 2 + (FANTASYLAND_WORTH * fl_std) ** 2)
+denom_std = fl_std
+num = u + FANTASYLAND_WORTH * fl
+denom = 1 + fl
+rph = num / denom
+rph_std = num / denom * np.sqrt((num_std / num) ** 2 + (denom_std / denom) ** 2)
 
 print "\n"
-print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(game_num - args.num_train))
-print "Average utility (no bust penalty): {}".format(sum(non_bust_utilities) / float(game_num - args.num_train))
-print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (game_num - args.num_train))
-print "Fantasyland %: {} / {} = {}".format(fantasylands, game_num, float(fantasylands) / (game_num - args.num_train))
+print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(num_test_played))
+print "Royalties per hand: {} +/- {}".format(rph, rph_std)
+print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (num_test_played))
+print "Fantasyland %: {} / {} = {}".format(fantasylands, game_num, float(fantasylands) / (num_test_played))
