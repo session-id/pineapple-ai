@@ -140,12 +140,12 @@ for game_num in range(args.num_test + args.num_train):
         opp_busts += 1
         opp_non_bust_utilities += [0.]
       else:
-        opp_non_bust_utilities += [utility]
+        opp_non_bust_utilities += [opp_utility]
 
     if args.verbose or type(player_policy) == policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
       player_game.print_state(player_state)
-    if args.verbose or type(opp_policy) == policies.HumanPolicy:
+    if args.verbose:
       print opp_game.name, "\'s Final board:"
       opp_game.print_state(opp_state)
 
@@ -166,14 +166,14 @@ for game_num in range(args.num_test + args.num_train):
     game_num -= 1
     break
 
-if isinstance(policy, policies.RLPolicy):
-  try:
-    with open('weights.json', 'w') as fp:
-      json.dump(policy.weights, fp, sort_keys=True, indent=2, separators=(',', ': '))
-  except Exception:
-    pass
+# if isinstance(policy, policies.RLPolicy):
+#   try:
+#     with open('weights.json', 'w') as fp:
+#       json.dump(policy.weights, fp, sort_keys=True, indent=2, separators=(',', ': '))
+#   except Exception:
+#     pass
 
-def print_stats(utilities, non_bust_utilities, busts, fantasylands, name):
+def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_num):
   utilities = np.array(utilities)
   non_bust_utilities = np.array(non_bust_utilities)
   np.save('utilities', utilities)
@@ -198,6 +198,6 @@ def print_stats(utilities, non_bust_utilities, busts, fantasylands, name):
   print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (num_test_played))
   print "Fantasyland %: {} / {} = {}".format(fantasylands, game_num, float(fantasylands) / (num_test_played))
 
-print_stats(player_utilities, player_non_bust_utilities, player_busts, player_fantasylands, player_game.name)
-print_stats(opp_utilities, opp_non_bust_utilities, opp_busts, opp_fantasylands, opp_game.name)
+print_stats(player_game.name, player_utilities, player_non_bust_utilities, player_busts, player_fantasylands, game_num)
+print_stats(opp_game.name, opp_utilities, opp_non_bust_utilities, opp_busts, opp_fantasylands, game_num)
 
