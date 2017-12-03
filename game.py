@@ -339,6 +339,7 @@ class PineappleGame1(object):
 class PineappleGame2State(PineappleGame1State):
   def __init__(self, rows, draw, remaining):
     super(PineappleGame2State, self).__init__(rows, draw, remaining)
+    self.opp_rows = [[], [], []]
     self.discard = []
 
 '''
@@ -347,7 +348,6 @@ A game of Pineapple allowing two players.
 class PineappleGame2(PineappleGame1):
   def __init__(self, name):
     super(PineappleGame2, self).__init__()
-    self.opp_rows = [[], [], []]
     self.name = name
 
   def get_start_state(self, hero_first):
@@ -392,8 +392,8 @@ class PineappleGame2(PineappleGame1):
   # Only call when is_end is true
   def utility(self, state, opp_state):
     assert self.is_end(state)
-    royalties = total_royalties(state.rows)
-    if (royalties == None):
+    royalties = total_royalties(state.rows, fl_bonus=False)
+    if royalties is None:
       royalties = 0
     hands = [compute_hand(cards) for cards in state.rows]
     opp_hands = [compute_hand(cards) for cards in opp_state.rows]

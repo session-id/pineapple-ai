@@ -296,16 +296,16 @@ class VarSimOracleEvalPolicy(BasePolicy):
   def get_action(self, state):
     actions = self.game.actions(state)
     outcomes = [(self.game.sim_place_cards(state, action), action) for action in actions]
-    if self.game.num_to_draw(outcomes[0][0]) == 0:
-      # Just return utilities
-      eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
-      return max(eval_utilities)[1]
-    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3}
+    # if self.game.num_to_draw(outcomes[0][0]) == 0:
+    #   # Just return utilities
+    #   eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
+    #   return max(eval_utilities)[1]
+    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
 
     def interpolate_action(prev, outcome, num_sims, round_num):
       values = []
-      if self.game.num_to_draw(outcome) == 0:
-        return self.game.utility(outcome)
+      # if self.game.num_to_draw(outcome) == 0:
+      #   return self.game.utility(outcome)
       num_to_draw = num_to_draw_map[self.game.num_to_draw(outcome)]
       for _ in xrange(num_sims):
         draw = random.sample(outcome.remaining, num_to_draw)
@@ -372,17 +372,17 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
   def __init__(self, game, args):
     super(AdvVarSimOracleEvalPolicy, self).__init__(game, args)
     self.num_sims = args.num_oracle_sims
-    # TODO: Add --num-opp-sims flag
     self.num_opp_sims = args.num_opp_sims
 
   def get_action(self, state):
     actions = self.game.actions(state)
     outcomes = [(self.game.sim_place_cards(state, action), action) for action in actions]
     num_to_draw = self.game.num_to_draw(outcomes[0][0])
-    opp_num_to_draw = OPPONENT_NUM_TO_DRAW
-    opp_rows = OPPONENT_ROWS
+    table = {0: 17, 5: 12, 7: 9, 9: 6, 11: 3, 13: 0}
+    opp_num_to_draw = table[sum(len(x) for x in state.opp_rows)]
+    opp_rows = state.opp_rows
 
-    opp_num_to_draw_map = {9: 6, 6: 5, 3: 3}
+    opp_num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
     if opp_num_to_draw <= 9:
       opp_combos = []
       if opp_num_to_draw > 0:
@@ -397,18 +397,17 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
         opp_combos = [[compute_hand(cards) for cards in opp_rows]]
       value_fn = lambda rows, draw: hand_optimizer.optimize_hand_adv(rows, draw, opp_combos)
     else:
-      value_fn = lambda row, draw: hand_optimizer.optimize_hand(rows, draw)
+      value_fn = lambda rows, draw: hand_optimizer.optimize_hand(rows, draw)
 
-    if self.game.num_to_draw(outcomes[0][0]) == 0:
-      eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
-      return max(eval_utilities)[1]
-    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3}
+    # if self.game.num_to_draw(outcomes[0][0]) == 0:
+    #   eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
+    #   return max(eval_utilities)[1]
+    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
 
     def interpolate_action(prev, outcome, num_sims, round_num):
       values = []
-      # TODO: Still need to simulate opponent draws when there's nothing left
-      if num_to_draw == 0:
-        return self.game.utility(outcome)
+      # if num_to_draw == 0:
+      #   return self.game.utility(outcome)
       num_to_draw_sim = num_to_draw_map[num_to_draw]
       for _ in xrange(num_sims):
         draw = random.sample(outcome.remaining, num_to_draw_sim)

@@ -13,7 +13,7 @@ parser.add_argument('--num-test', type=int, default=1,
                     help='number of games to test policy on')
 parser.add_argument('--player-policy', type=str, default='human',
                     help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval'
-                         '/q_learning2/vs_oracle_eval)')
+                         '/q_learning2/vs_oracle_eval/adv_vs_oracle_eval)')
 parser.add_argument('--opp-policy', type=str, default='human',
                     help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval'
                          '/q_learning2/vs_oracle_eval)')
@@ -32,6 +32,8 @@ parser.add_argument('--feature-extractor', type=str, default='feature_extractor_
                     'with q_learning2 (those that ingest state, action)')
 parser.add_argument('--num-oracle-sims', type=int, default=3,
                     help='number of simulations for oracle_eval to run per action result')
+parser.add_argument('--num-opp-sims', type=int, default=10,
+                    help='number of opponent simulations to do for MC adversarial policies')
 parser.add_argument('--oracle-outcome-weighting', type=float, default=1.0,
                     help='exponent for how outcomes are weighted for the oracle')
 parser.add_argument('--distinguish-draws', action='store_true',
@@ -47,6 +49,7 @@ policy_name_to_policy = {
   'q_learning': policies.QLearningPolicy,
   'oracle_eval': policies.OracleEvalPolicy,
   'vs_oracle_eval': policies.VarSimOracleEvalPolicy,
+  'adv_vs_oracle_eval': policies.AdvVarSimOracleEvalPolicy,
   'q_learning2': policies.QLearningPolicy2
 }
 
@@ -60,11 +63,13 @@ player_utilities = []
 player_non_bust_utilities = []
 player_busts = 0
 player_fantasylands = 0
+player_final_hands = []
 
 opp_utilities = []
 opp_non_bust_utilities = []
 opp_busts = 0
 opp_fantasylands = 0
+opp_final_hands = []
 
 if args.player_policy not in policy_name_to_policy:
   raise RuntimeError('Unrecognized policy arg: {}'.format(args.player_policy))
@@ -117,6 +122,7 @@ for game_num in range(args.num_test + args.num_train):
       if player_game.is_bust(player_state):
         player_busts += 1
       player_non_bust_utilities += [player_royalties]
+      player_final_hands += [player_state.rows]
 
     opp_utilities += [opp_utility - player_utility]
     if opp_game.is_fantasyland(opp_state):
@@ -125,6 +131,7 @@ for game_num in range(args.num_test + args.num_train):
       if opp_game.is_bust(opp_state):
         opp_busts += 1
       opp_non_bust_utilities += [opp_royalties]
+      opp_final_hands += [player_state.rows]
 
     if args.verbose or type(player_policy) == policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
@@ -139,7 +146,6 @@ for game_num in range(args.num_test + args.num_train):
         player_avg_utility = sum(player_utilities[start_game:]) / float(args.print_util_freq)
         opp_avg_utility = sum(opp_utilities[start_game:]) / float(args.print_util_freq)
         print "Player games {:4} -{:4} average utility: {}".format(start_game, game_num, player_avg_utility)
-        print "Opponent games {:4} -{:4} average utility: {}".format(start_game, game_num, opp_avg_utility)
     else:
       print "Game {:4} / {:4}\r".format(game_num+1, args.num_test),
 
@@ -150,12 +156,7 @@ for game_num in range(args.num_test + args.num_train):
     game_num -= 1
     break
 
-# if isinstance(policy, policies.RLPolicy):
-#   try:
-#     with open('weights.json', 'w') as fp:
-#       json.dump(policy.weights, fp, sort_keys=True, indent=2, separators=(',', ': '))
-#   except Exception:
-#     pass
+# TODO: Add fantasyland value simulation based on average hands made
 
 def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_num):
   utilities = np.array(utilities)
@@ -176,11 +177,14 @@ def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_n
   rph = num / denom
   rph_std = num / denom * np.sqrt((num_std / num) ** 2 + (denom_std / denom) ** 2)
 
+  bust = float(busts) / num_test_played
+  bust_std = np.sqrt(bust * (1 - bust) / num_test_played)
+
   print "\n", name
   print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(num_test_played))
   print "Royalties per hand: {} +/- {}".format(rph, rph_std)
-  print "Bust %: {} / {} = {}".format(busts, game_num, float(busts) / (num_test_played))
-  print "Fantasyland %: {} / {} = {}".format(fantasylands, game_num, float(fantasylands) / (num_test_played))
+  print "Bust %: {} / {} = {} +/- {}".format(busts, game_num, bust, bust_std)
+  print "Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std)
 
 print_stats(player_game.name, player_utilities, player_non_bust_utilities, player_busts, player_fantasylands, game_num)
 print_stats(opp_game.name, opp_utilities, opp_non_bust_utilities, opp_busts, opp_fantasylands, game_num)
