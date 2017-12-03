@@ -362,7 +362,7 @@ def feature_extractor_3(cardset, deck, num_to_draw):
 		})
 
 
-class FeatureExtractor(object):
+class QLearningExtractor(object):
 	def __init__(self, game):
 		self.game = game
 
@@ -371,7 +371,7 @@ class FeatureExtractor(object):
 
 
 # An oracle based feature extractor
-class FeatureExtractor3(FeatureExtractor):
+class FeatureExtractor3(QLearningExtractor):
 	def default_weights(self):
 		return defaultdict(float, {
 				(3, 3): 1.0,
