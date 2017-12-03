@@ -6,7 +6,7 @@ import random
 # rows: list of lists for top, middle, bottom rows
 # draw: whatever has been drawn
 # remaining: set of remaining cards
-class PineappleGame1State:
+class PineappleGame1State(object):
   def __init__(self, rows, draw, remaining):
     self.rows = rows
     self.draw = draw
@@ -324,3 +324,59 @@ class PineappleGame1(object):
     for row in state.rows:
       print '| ' + ' '.join(row)
     print 'Draw:', ' '.join(sorted(state.draw))
+
+# rows: list of lists for top, middle, bottom rows
+# draw: whatever has been drawn
+# remaining: set of remaining cards
+class PineappleGame2State(PineappleGame1State):
+  def __init__(self, rows, draw, remaining):
+  	super(PineappleGame2State, self).__init__(rows, draw, remaining)
+  	self.discard = []
+
+'''
+A game of Pineapple allowing two players.
+'''
+class PineappleGame2(PineappleGame1):
+	def __init__(self, name):
+		super(PineappleGame2, self).__init__()
+		self.name = name
+
+	def get_start_state(self, hero_first):
+	    cards = copy.deepcopy(self.cards)
+	    if not hero_first:
+	      opponent_draw = random.sample(cards, 5)
+	      for card in opponent_draw:
+	        cards.remove(card)
+	    draw = random.sample(cards, 5)
+	    for card in draw:
+	      cards.remove(card)
+	    return PineappleGame2State(rows=[[], [], []], draw=draw, remaining=cards)
+
+	# Given the state and action, takes the action and returns a state.
+	# Does not modify the provided state.
+	# The input action does not need to be sorted.
+	def get_outcome(self, state, action):
+		state = copy.deepcopy(state)
+		action = tuple(sorted(action))
+		if action not in self.actions(state):
+		  raise RuntimeError("Illegal Action: {}".format(action))
+		for move in state.draw:
+			if (move not in action):
+				state.discard.append(move)
+		for card, placement in action:
+		  state.rows[placement] += [card]
+		state.draw = random.sample(state.remaining, 3)
+		for card in state.draw:
+		  state.remaining.remove(card)
+		return state
+
+	# Pretty print the state for display
+	def print_state(self, state):
+		discarded = state.discard
+		print 'It is %s\'s turn!' % self.name
+		print 'Discard:', ' '.join(sort_cards(discarded))
+		for row in state.rows:
+			print '| ' + ' '.join(row)
+		print 'Draw:', ' '.join(sorted(state.draw))
+
+
