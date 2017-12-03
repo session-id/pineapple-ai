@@ -106,29 +106,25 @@ for game_num in range(args.num_test + args.num_train):
       opp_state = take_action(opp_game, opp_state, player_state, opp_policy)
 
     player_utility = player_game.utility(player_state, opp_state)
+    player_royalties = player_game.royalties_for_hand(player_state)
     opp_utility = opp_game.utility(opp_state, player_state)
+    opp_royalties = opp_game.royalties_for_hand(opp_state)
 
-    player_utilities += [player_utility]
+    player_utilities += [player_utility - opp_utility]
     if player_game.is_fantasyland(player_state):
       player_fantasylands += 1
-      player_utility -= FANTASYLAND_BONUS # For calculation below
     if game_num >= args.num_train:
-      if player_utility == BUST_PENALTY:
+      if player_game.is_bust(player_state):
         player_busts += 1
-        player_non_bust_utilities += [0.]
-      else:
-        player_non_bust_utilities += [player_utility]
+      player_non_bust_utilities += [player_royalties]
 
-    opp_utilities += [opp_utility]
+    opp_utilities += [opp_utility - player_utility]
     if opp_game.is_fantasyland(opp_state):
       opp_fantasylands += 1
-      opp_utility -= FANTASYLAND_BONUS # For calculation below
     if game_num >= args.num_train:
-      if opp_utility == BUST_PENALTY:
+      if opp_game.is_bust(opp_state):
         opp_busts += 1
-        opp_non_bust_utilities += [0.]
-      else:
-        opp_non_bust_utilities += [opp_utility]
+      opp_non_bust_utilities += [opp_royalties]
 
     if args.verbose or type(player_policy) == policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
