@@ -354,3 +354,79 @@ def optimize_hand(rows, draw, return_combo=False):
   if return_combo:
     return g.BUST_PENALTY, None
   return g.BUST_PENALTY
+
+# A custom version of g.compare_hands that ignores flush suit when
+# combos are passed in.
+def custom_compare_hands(hand1, hand2):
+  if hand1[0] == 'Fl':
+    hand1 == ('Fl',)
+  if hand2[0] == 'Fl':
+    hand2 == ('Fl',)
+  return g.compare_hands(hand1, hand2)
+
+'''
+Input:
+  combo: a single combo (hands for every rwo) (e.g. [('3', 14), ('St', 14), ('Fl', 'C')). Cannot be None.
+  opp_combos: a list of opponent combos to average over. None represents a bust.
+Output:
+  The average utility earned by playing combo against opp_combos. Does not perform further comparisons
+  past high card (since that information is not available from a combo). Pessimistically counts ties
+  as losses (flush vs flush, for instance)
+'''
+def total_utility_adv(combo, opp_combos):
+  total = 0
+  for row_num, hand in enumerate(combo):
+    total += g.royalties(hand, row_num)
+  for opp_combo in opp_combos:
+    if opp_combo is None:
+      total += 6. / len(opp_combos)
+      continue
+    gain = 0.
+    for hand, opp_hand in zip(combo, opp_combo):
+      if g.compare_hands(hand, opp_hand) > 0:
+        gain += 1
+      else:
+        gain -= 1
+    if gain == 3:
+      gain = 6
+    if gain == -3:
+      gain = -6
+    total += gain / len(opp_combos)
+  return total
+
+# Given the current rows and a future draw, return the highest average utility achievable from the
+# current hand against the listed opponent combos (in combo format).
+# If return_combo is True, it will also return the best combo (None if busted)
+def optimize_hand_adv(rows, draw, opp_combos, return_combo=False):
+  num_play = sum(g.ROW_LENGTHS) - sum(len(row) for row in rows)
+  hands_for_row = []
+  for row_num, row in enumerate(rows):
+    hands_for_row += [possible_hands(row, row_num, draw)]
+
+  possible_combos = []
+  for row1, row2, row3 in itertools.product(*hands_for_row):
+    # Skip bust hands
+    # WARNING: currently, the use of >= makes it impossible to have two rows with the same
+    # hand name (you can't have two different pairs with the same high card on different rows)
+    if g.compare_hands(row1, row2) >= 0 or g.compare_hands(row2, row3) >= 0:
+      continue
+    possible_combos += [(row1, row2, row3)]
+
+  hands_with_royalties = sorted([(total_utility_adv(combo, opp_combos), combo) for combo in possible_combos],
+    lambda x, y: -cmp(x,y))
+  
+  precom = {
+    'all_row_values': [tabulate_values(row) for row in rows],
+    'draw_values': tabulate_values(draw),
+    'draw_suits': tabulate_suits(draw),
+  }
+  for royalties, combo in hands_with_royalties:
+    if is_makeable(rows, draw, combo, precom):
+      if return_combo:
+        return royalties, combo
+      return royalties
+
+  # No hands were makeable, only bust is possible
+  if return_combo:
+    return g.BUST_PENALTY, None
+  return g.BUST_PENALTY
