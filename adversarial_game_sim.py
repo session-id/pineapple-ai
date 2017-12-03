@@ -100,13 +100,13 @@ for game_num in range(args.num_test + args.num_train):
 
     while not player_game.is_end(player_state):
       def take_action(game, state, opp_state, policy):
-        if args.verbose:
-          game.print_state(state)
+        # if args.verbose:
+        #   game.print_state(state)
         action_state = copy.deepcopy(state)
         action_state.remaining = state.fake_remaining
         action = policy.get_action(action_state)
-        if args.verbose:
-          print "Action:", action
+        # if args.verbose:
+        #   print "Action:", action
         new_state = game.get_outcome(state, action, opp_state)
         if isinstance(policy, policies.RLPolicy):
           policy.incorporate_feedback(state, action, new_state)
@@ -115,12 +115,12 @@ for game_num in range(args.num_test + args.num_train):
       player_state = take_action(player_game, player_state, opp_state, player_policy)
       opp_state = take_action(opp_game, opp_state, player_state, opp_policy)
 
-    player_utility = player_game.utility(player_state, opp_state)
+    player_utility = player_game.utility(player_state)
     player_royalties = player_game.royalties_for_hand(player_state)
-    opp_utility = opp_game.utility(opp_state, player_state)
+    opp_utility = opp_game.utility(opp_state)
     opp_royalties = opp_game.royalties_for_hand(opp_state)
 
-    player_utilities += [player_utility - opp_utility]
+    player_utilities += [player_utility]
     if player_game.is_fantasyland(player_state):
       player_fantasylands += 1
     if game_num >= args.num_train:
@@ -129,7 +129,7 @@ for game_num in range(args.num_test + args.num_train):
       player_non_bust_utilities += [player_royalties]
       player_final_hands += [g.rows_to_hands(player_state.rows)]
 
-    opp_utilities += [opp_utility - player_utility]
+    opp_utilities += [opp_utility]
     if opp_game.is_fantasyland(opp_state):
       opp_fantasylands += 1
     if game_num >= args.num_train:
@@ -138,12 +138,9 @@ for game_num in range(args.num_test + args.num_train):
       opp_non_bust_utilities += [opp_royalties]
       opp_final_hands += [g.rows_to_hands(player_state.rows)]
 
-    if args.verbose or type(player_policy) == policies.HumanPolicy:
+    if args.verbose or type(player_policy) is policies.HumanPolicy or type(opp_policy) is policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
       player_game.print_state(player_state)
-    if args.verbose:
-      print opp_game.name, "\'s Final board:"
-      opp_game.print_state(opp_state)
 
     if args.print_util_freq != -1:
       if (game_num + 1) % args.print_util_freq == 0:

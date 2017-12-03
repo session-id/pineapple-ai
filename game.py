@@ -430,19 +430,31 @@ class PineappleGame2(PineappleGame1):
     return royalties
 
   # Only call when is_end is true
-  def utility(self, state, opp_state):
+  def utility(self, state):
     assert self.is_end(state)
     royalties = total_royalties(state.rows, fl_bonus=False)
+    opp_royalties = total_royalties(state.opp_rows, fl_bonus=False)
+    comparison_utility = 0
     if royalties is None:
-      royalties = 0
+      comparison_utility -= 6
+    if opp_royalties is None:
+      comparison_utility += 6
+    if royalties is None or opp_royalties is None:
+      royalties = 0 if royalties is None else royalties
+      opp_royalties = 0 if opp_royalties is None else opp_royalties
+      return royalties - opp_royalties + comparison_utility
     hands = rows_to_hands(state.rows)
-    opp_hands = rows_to_hands(opp_state.rows)
-    num_better_rows = 0
+    opp_hands = rows_to_hands(state.opp_rows)
     for i in range(len(hands)):
       if (compare_hands(hands[i], opp_hands[i]) == 1):
-        num_better_rows += 1
-    row_compare_score = (SWEEP_SCORE if num_better_rows == 3 else num_better_rows)
-    return royalties + row_compare_score
+        comparison_utility += 1
+      elif (compare_hands(hands[i], opp_hands[i]) == 1):
+        comparison_utility -= 1
+    if comparison_utility == 3:
+      comparison_utility = 6
+    elif comparison_utility == -3:
+      comparison_utility = -6
+    return royalties - opp_royalties + comparison_utility
 
   # Pretty print the state for display
   def print_state(self, state):
@@ -452,6 +464,8 @@ class PineappleGame2(PineappleGame1):
           not any([card in row or card in state.draw for row in state.rows]):
         missing += [card]
     print 'It is %s\'s turn!' % self.name
+    for row in state.opp_rows:
+      print '| ' + ' '.join(row)
     print 'Missing:', ' '.join(sort_cards(missing))
     for row in state.rows:
       print '| ' + ' '.join(row)

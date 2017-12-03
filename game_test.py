@@ -55,49 +55,49 @@ def ranking_test():
   print "Ranking test passed!"
 
 def royalties_test():
-  assert royalties(pair_2_top, 0) == 0
-  assert royalties(pair_A_top, 0) == 9
-  assert royalties(triple_5_top, 0) == 13
-  assert royalties(pair_2, 1) == 0
-  assert royalties(triple_5, 1) == 2
-  assert royalties(wheel, 1) == 4
-  assert royalties(flush, 1) == 8
-  assert royalties(full_house, 1) == 12
-  assert royalties(quad, 1) == 20
-  assert royalties(straight_flush, 1) == 30
-  assert royalties(royal_flush, 1) == 50
-  assert royalties(two_pair, 2) == 0
-  assert royalties(triple_5, 2) == 0
-  assert royalties(wheel, 2) == 2
-  assert royalties(flush, 2) == 4
-  assert royalties(full_house, 2) == 6
-  assert royalties(quad, 2) == 10
-  assert royalties(straight_flush, 2) == 15
-  assert royalties(royal_flush, 2) == 25
+  assert royalties(pair_2_top, 0, fl_bonus=False) == 0
+  assert royalties(pair_A_top, 0, fl_bonus=False) == 9
+  assert royalties(triple_5_top, 0, fl_bonus=False) == 13
+  assert royalties(pair_2, 1, fl_bonus=False) == 0
+  assert royalties(triple_5, 1, fl_bonus=False) == 2
+  assert royalties(wheel, 1, fl_bonus=False) == 4
+  assert royalties(flush, 1, fl_bonus=False) == 8
+  assert royalties(full_house, 1, fl_bonus=False) == 12
+  assert royalties(quad, 1, fl_bonus=False) == 20
+  assert royalties(straight_flush, 1, fl_bonus=False) == 30
+  assert royalties(royal_flush, 1, fl_bonus=False) == 50
+  assert royalties(two_pair, 2, fl_bonus=False) == 0
+  assert royalties(triple_5, 2, fl_bonus=False) == 0
+  assert royalties(wheel, 2, fl_bonus=False) == 2
+  assert royalties(flush, 2, fl_bonus=False) == 4
+  assert royalties(full_house, 2, fl_bonus=False) == 6
+  assert royalties(quad, 2, fl_bonus=False) == 10
+  assert royalties(straight_flush, 2, fl_bonus=False) == 15
+  assert royalties(royal_flush, 2, fl_bonus=False) == 25
 
   # Total royalties
   assert total_royalties([
       ['AD', 'AD', 'KD'],
       ['3S', '3H', '4D', '4H', '5C'],
       ['6S', '6S', '7S', '7C', '7D']
-    ]) == 15
+    ], fl_bonus=False) == 15
   assert total_royalties([
       ['AD', 'AD', 'KD'],
       ['3S', '3H', '4D', '4H', '5C'],
       ['6S', '6S', '7S', '7C', '8D']
-    ]) == 9
+    ], fl_bonus=False) == 9
 
   # Bust
   assert total_royalties([
       ['AD', 'AD', 'AC'],
       ['3S', '3H', '4D', '4H', '5C'],
       ['6S', '6S', '7S', '7C', '7D']
-    ]) is None
+    ], fl_bonus=False) is None
   assert total_royalties([
       ['AD', 'AD', 'AC'],
       ['3S', '3H', '8D', '8H', '8C'],
       ['6S', '6S', '7S', '7C', '7D']
-    ]) is None
+    ], fl_bonus=False) is None
   assert is_bust([triple_5_top, pair_2, full_house])
   assert is_bust([triple_5_top, quad, full_house])
 
@@ -213,7 +213,7 @@ def game_royalties_test():
       draw = None,
       remaining = set()
     )
-  assert game.utility(state) == 9 + 15
+  assert game.utility(state) == 9 + 15 + FANTASYLAND_BONUS
   state = PineappleGame1State(
       rows = [
           ['3H', '3C', '3D'],
@@ -227,6 +227,40 @@ def game_royalties_test():
 
   print "Game royalties test passed!"
 
+
 start_state_test()
 actions_test()
 game_royalties_test()
+
+'''
+PineappleGame2 tests
+'''
+
+game = PineappleGame2('player')
+
+def adv_game_utilities_test():
+  state = PineappleGame2State(
+      rows = [
+        ['5D', '8S', '4D'],
+        ['3S', '5C', '2C', '4C', 'TC'],
+        ['7H', 'AH', 'KH', '2H', 'TH']
+      ],
+      draw = None,
+      remaining = set(),
+      fake_remaining = set(),
+    )
+  state.opp_rows = [
+    ['QC', 'QD', '8D'],
+    ['2D', 'AD', 'KS', '9C', 'JS'],
+    ['7C', '6C', '6S', '9S', '7D']
+  ]
+
+  assert game.utility(state) == 10
+  temp = state.opp_rows
+  state.opp_rows = state.rows
+  state.rows = temp
+  assert game.utility(state) == -10
+
+  print "Adversarial game utilities test passed!"
+
+adv_game_utilities_test()
