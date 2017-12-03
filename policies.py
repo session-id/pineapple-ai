@@ -360,3 +360,68 @@ class TDLearningPolicy(RLPolicy):
 
   def incorporate_feedback(self, state, action, new_state):
     pass
+
+'''
+Adversarial capable policies below
+'''
+
+class AdvVarSimOracleEvalPolicy(BasePolicy):
+  '''
+  Adversarial version of VarSimOracleEvalPolicy
+  '''
+  def __init__(self, game, args):
+    super(AdvVarSimOracleEvalPolicy, self).__init__(game, args)
+    self.num_sims = args.num_oracle_sims
+    # TODO: Add --num-opp-sims flag
+    self.num_opp_sims = args.num_opp_sims
+
+  def get_action(self, state):
+    actions = self.game.actions(state)
+    outcomes = [(self.game.sim_place_cards(state, action), action) for action in actions]
+    num_to_draw = self.game.num_to_draw(outcomes[0][0])
+    opp_num_to_draw = OPPONENT_NUM_TO_DRAW
+    opp_rows = OPPONENT_ROWS
+
+    opp_num_to_draw_map = {9: 6, 6: 5, 3: 3}
+    if opp_num_to_draw <= 9:
+      opp_combos = []
+      if opp_num_to_draw > 0:
+        num_to_draw_sim = opp_num_to_draw_map[opp_num_to_draw]
+        for _ in xrange(self.num_opp_sims):
+          # state.remaining and outcome.remaining for any outcome should be equal
+          draw = random.sample(state.remaining, num_to_draw_sim)
+          # Assume opponent just plays to maximize their royalties
+          value, combo = hand_optimizer.optimize_hand(opp_rows, draw, True)
+          opp_combos += [combo]
+      else:
+        opp_combos = [[compute_hand(cards) for cards in opp_rows]]
+      value_fn = lambda rows, draw: hand_optimizer.optimize_hand_adv(rows, draw, opp_combos)
+    else:
+      value_fn = lambda row, draw: hand_optimizer.optimize_hand(rows, draw)
+
+    if self.game.num_to_draw(outcomes[0][0]) == 0:
+      eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
+      return max(eval_utilities)[1]
+    num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3}
+
+    def interpolate_action(prev, outcome, num_sims, round_num):
+      values = []
+      # TODO: Still need to simulate opponent draws when there's nothing left
+      if num_to_draw == 0:
+        return self.game.utility(outcome)
+      num_to_draw_sim = num_to_draw_map[num_to_draw]
+      for _ in xrange(num_sims):
+        draw = random.sample(outcome.remaining, num_to_draw_sim)
+        values += [value_fn(outcome.rows, draw)]
+      values = np.array(values)
+      return prev * (1 - 1. / round_num) + np.mean(values) / round_num
+
+    outcomes_with_histories = [(0., outcome, action) for outcome, action in outcomes]
+    round_num = 1.
+    while len(outcomes_with_histories) > 1:
+      outcomes_with_histories = [(interpolate_action(prev, outcome, self.num_sims, round_num), outcome, action)
+                                  for prev, outcome, action in outcomes_with_histories]
+      outcomes_with_histories.sort()
+      outcomes_with_histories = outcomes_with_histories[len(outcomes_with_histories) / 2:]
+      round_num += 1
+    return outcomes_with_histories[0][2]
