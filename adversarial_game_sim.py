@@ -1,7 +1,9 @@
 import argparse
 import copy
 import json
+import logging
 import numpy as np
+import os
 import random
 import time
 
@@ -44,6 +46,8 @@ parser.add_argument('--oracle-outcome-weighting', type=float, default=1.0,
                     help='exponent for how outcomes are weighted for the oracle')
 parser.add_argument('--distinguish-draws', action='store_true',
                     help='for feature extraction, whether to consider every num_to_draw differently')
+parser.add_argument('--final-state-file', type=str, default='',
+                    help='file to write all final states to')
 args = parser.parse_args()
 
 policy_name_to_policy = {
@@ -59,8 +63,8 @@ policy_name_to_policy = {
   'q_learning2': policies.QLearningPolicy2
 }
 
-def prompt_bool():
-  return raw_input('(Y/N)? ').upper() == 'Y'
+def prompt_bool(prompt):
+  return raw_input(prompt + ' (Y/N)? ').upper() == 'Y'
 
 start_time = time.time()
 
@@ -87,6 +91,16 @@ player_policy = policy_name_to_policy[args.player_policy](player_game, args)
 opp_policy = policy_name_to_policy[args.opp_policy](opp_game, args)
 if type(player_policy) == policies.HumanPolicy:
   args.print_util_freq = 1
+
+if args.final_state_file != '':
+  if os.path.isfile(args.final_state_file):
+    if prompt_bool('Overwrite existing log?'):
+      os.remove(args.final_state_file)
+    else:
+      print "Appending to old log."
+  logging.basicConfig(filename=args.final_state_file, level=logging.INFO, format='%(message)s')
+  logging.info("Player policy: {}".format(args.player_policy))
+  logging.info("Opp policy: {}\n".format(args.opp_policy))
 
 for game_num in range(args.num_test + args.num_train):
   # No exploration during testing
@@ -120,6 +134,13 @@ for game_num in range(args.num_test + args.num_train):
     opp_utility = opp_game.utility(opp_state)
     opp_royalties = opp_game.royalties_for_hand(opp_state)
 
+    if player_utility != -opp_utility:
+      print "Incongrous player and opponent utilities!"
+      player_game.print_state(player_state)
+      print "Player utility:", player_utility
+      print "Opp utility:", opp_utility
+      raise Exception('Incongrous player and opponent utilities!')
+
     player_utilities += [player_utility]
     if player_game.is_fantasyland(player_state):
       player_fantasylands += 1
@@ -141,6 +162,15 @@ for game_num in range(args.num_test + args.num_train):
     if args.verbose or type(player_policy) is policies.HumanPolicy or type(opp_policy) is policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
       player_game.print_state(player_state)
+
+    if args.final_state_file != '':
+      logging.info("Game: {}".format(game_num))
+      logging.info("Utility: {}".format(player_utility))
+      for row in player_state.rows:
+        logging.info("+ "+ ' '.join(row))
+      for row in player_state.opp_rows:
+        logging.info("- "+ ' '.join(row))
+      logging.info("")
 
     if args.print_util_freq != -1:
       if (game_num + 1) % args.print_util_freq == 0:
