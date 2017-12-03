@@ -87,38 +87,26 @@ for game_num in range(args.num_test + args.num_train):
     opp_state = opp_game.get_start_state(hero_first=args.hero_first)
 
     while not player_game.is_end(player_state):
-      if args.verbose:
-        player_game.print_state(player_state)
-      action_state = copy.deepcopy(player_state)
-      for card in opp_state.discard:
-        action_state.remaining.add(card)
-      action = player_policy.get_action(action_state)
-      if args.verbose:
-        print "Action:", action
-      new_state = player_game.get_outcome(player_state, action)
-      if isinstance(player_policy, policies.RLPolicy):
-        player_policy.incorporate_feedback(player_state, action, new_state)
-      player_state = new_state
+      def take_action(game, state, opp_state, policy):
+        if args.verbose:
+          game.print_state(state)
+        action_state = copy.deepcopy(state)
+        for card in opp_state.discard:
+          action_state.remaining.add(card)
+        action = policy.get_action(action_state)
+        if args.verbose:
+          print "Action:", action
+        new_state = game.get_outcome(state, action)
+        opp_state.opp_rows = state.rows
+        if isinstance(policy, policies.RLPolicy):
+          policy.incorporate_feedback(state, action, new_state)
+        return new_state
 
-      if args.verbose:
-        opp_game.print_state(opp_state)
-      action_state = copy.deepcopy(opp_state)
-      for card in player_state.discard:
-        action_state.remaining.add(card)
-      action = opp_policy.get_action(action_state)
-      if args.verbose:
-        print "Action:", action
-      new_state = opp_game.get_outcome(opp_state, action)
-      if isinstance(opp_policy, policies.RLPolicy):
-        opp_policy.incorporate_feedback(opp_state, action, new_state)
-      opp_state = new_state
+      player_state = take_action(player_game, player_state, opp_state, player_policy)
+      opp_state = take_action(opp_game, opp_state, player_state, opp_policy)
 
-    player_utility = player_game.utility(player_state)
-    opp_utility = opp_game.utility(opp_state)
-    if (player_utility == BUST_PENALTY and opp_utility != BUST_PENALTY):
-      opp_utility += 6
-    elif (player_utility != BUST_PENALTY and opp_utility == BUST_PENALTY):
-      player_utility += 6
+    player_utility = player_game.utility(player_state, opp_state)
+    opp_utility = opp_game.utility(opp_state, player_state)
 
     player_utilities += [player_utility]
     if player_game.is_fantasyland(player_state):

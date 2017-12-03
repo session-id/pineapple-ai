@@ -49,6 +49,7 @@ BOT_ROW_ROYALTIES = defaultdict(int, BOT_ROW_ROYALTIES)
 ROW_LENGTHS = [3, 5, 5]
 NUM_ROWS = 3
 FILL_CARDS = ['VF', 'WE', 'XE', 'YE', 'ZE']
+SWEEP_SCORE = 6
 
 '''
 PARAMETERS
@@ -340,6 +341,7 @@ A game of Pineapple allowing two players.
 class PineappleGame2(PineappleGame1):
 	def __init__(self, name):
 		super(PineappleGame2, self).__init__()
+		self.opp_rows = [[], [], []]
 		self.name = name
 
 	def get_start_state(self, hero_first):
@@ -370,6 +372,21 @@ class PineappleGame2(PineappleGame1):
 		for card in state.draw:
 		  state.remaining.remove(card)
 		return state
+
+	# Only call when is_end is true
+	def utility(self, state, opp_state):
+		assert self.is_end(state)
+		royalties = total_royalties(state.rows)
+		if (royalties == None):
+			royalties = 0
+		hands = [compute_hand(cards) for cards in state.rows]
+		opp_hands = [compute_hand(cards) for cards in opp_state.rows]
+		num_better_rows = 0
+		for i in range(len(hands)):
+			if (compare_hands(hands[i], opp_hands[i]) == 1):
+				num_better_rows += 1
+		row_compare_score = (SWEEP_SCORE if num_better_rows == 3 else num_better_rows)
+		return royalties + row_compare_score
 
 	# Pretty print the state for display
 	def print_state(self, state):
