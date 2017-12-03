@@ -21,7 +21,7 @@ utilities = []
 for iter_num in xrange(args.num_games):
   print "{:5} / {:5}".format(iter_num, args.num_games), '\r',
   draw = random.sample(game.cards, args.num_cards)
-  utilities += [hand_optimizer.optimize_hand([[], [], []], draw)]
+  utilities += [hand_optimizer.optimize_hand([[], [], []], draw, fl_bonus=False)]
 print ''
 
 utilities = np.array(utilities)

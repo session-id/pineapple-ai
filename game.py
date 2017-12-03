@@ -22,6 +22,7 @@ MAX_VALUE = 14
 AVERAGE_UTILITY_ESTIMATE = 4
 FANTASYLAND_WORTH = 13.75 # Actual Worth of Fantasyland
 FANTASYLAND_BONUS = FANTASYLAND_WORTH - AVERAGE_UTILITY_ESTIMATE # Heuristic for computing utilities
+NUM_FANTASYLAND_DRAW = 14
 SUITS = 'CDHS'
 HAND_ORDER = reversed(['RoFl', 'StFl', '4', '3+2', 'Fl', 'St', '3', '2+2', '2', '1'])
 HAND_ORDER_DICT = {}
@@ -159,6 +160,10 @@ def compute_hand(cards):
     hand_name = "1"
   return to_hand_tuple(hand_name, mults)
 
+# Commonly used function to turn rows into list of hands
+def rows_to_hands(rows):
+  return [compute_hand(cards) for cards in rows]
+
 # Returns 1 if hand1 > hand2
 # Returns -1 if hand1 < hand2
 # Returns 0 on tie
@@ -200,10 +205,29 @@ def total_royalties(rows, fl_bonus=True):
   assert len(rows) == NUM_ROWS
   for i in xrange(NUM_ROWS):
     assert len(rows[i]) == ROW_LENGTHS[i]
-  hands = [compute_hand(cards) for cards in rows]
+  hands = rows_to_hands(rows)
   if is_bust(hands):
     return None
   return sum(royalties(hand, row, fl_bonus) for row, hand in enumerate(hands))
+
+# Returns the utility earned by hands1 against hands2
+def adv_utility(hands1, hands2):
+  hands1_royalties = hands2_royalties = 0
+  if not is_bust(hands1):
+    hands1_royalties = sum(royalties(hand, row, False) for row, hand in enumerate(hands1))
+  if not is_bust(hands2):
+    hands2_royalties = sum(royalties(hand, row, False) for row, hand in enumerate(hands2))
+  comp_utility = 0
+  for i in range(len(hands1)):
+    if (compare_hands(hands1[i], hands2[i]) == 1):
+      comp_utility += 1
+    elif (compare_hands(hands1[i], hands2[i]) == -1):
+      comp_utility -= 1
+  if comp_utility == 3:
+    comp_utility = 6
+  if comp_utility == -3:
+    comp_utility = -6
+  return hands1_royalties - hands2_royalties + comp_utility
 
 '''
 GAME OBJECT
@@ -272,7 +296,7 @@ class PineappleGame1(object):
   # Returns whether the given state has busted
   def is_bust(self, state):
     assert self.is_end(state)
-    hands = [compute_hand(cards) for cards in state.rows]
+    hands = rows_to_hands(state.rows)
     return is_bust(hands)
 
   # Utility function for certain policies to simulate the placement of cards according to
@@ -307,7 +331,7 @@ class PineappleGame1(object):
 
   def is_fantasyland(self, state):
     assert self.is_end(state)
-    hands = [compute_hand(cards) for cards in state.rows]
+    hands = rows_to_hands(state.rows)
     if is_bust(hands):
       return False
     hand = hands[0]
@@ -351,15 +375,15 @@ class PineappleGame2(PineappleGame1):
     self.name = name
 
   def get_start_state(self, hero_first):
-      cards = copy.deepcopy(self.cards)
-      if not hero_first:
-        opponent_draw = random.sample(cards, 5)
-        for card in opponent_draw:
-          cards.remove(card)
-      draw = random.sample(cards, 5)
-      for card in draw:
+    cards = copy.deepcopy(self.cards)
+    if not hero_first:
+      opponent_draw = random.sample(cards, 5)
+      for card in opponent_draw:
         cards.remove(card)
-      return PineappleGame2State(rows=[[], [], []], draw=draw, remaining=cards)
+    draw = random.sample(cards, 5)
+    for card in draw:
+      cards.remove(card)
+    return PineappleGame2State(rows=[[], [], []], draw=draw, remaining=cards)
 
   # Given the state and action, takes the action and returns a state.
   # Does not modify the provided state.
@@ -395,8 +419,8 @@ class PineappleGame2(PineappleGame1):
     royalties = total_royalties(state.rows, fl_bonus=False)
     if royalties is None:
       royalties = 0
-    hands = [compute_hand(cards) for cards in state.rows]
-    opp_hands = [compute_hand(cards) for cards in opp_state.rows]
+    hands = rows_to_hands(state.rows)
+    opp_hands = rows_to_hands(opp_state.rows)
     num_better_rows = 0
     for i in range(len(hands)):
       if (compare_hands(hands[i], opp_hands[i]) == 1):

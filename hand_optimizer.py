@@ -1,4 +1,5 @@
 from collections import defaultdict
+import copy
 import itertools
 import random
 
@@ -147,10 +148,10 @@ def possible_hands(row, row_num, draw):
   return sorted(all_hands, lambda x, y: -g.compare_hands(x, y))
 
 # Given the hands in each row in abbreviated format, computes the total royalties
-def total_royalties(hands):
+def total_royalties(hands, fl_bonus=True):
   total = 0
   for row_num, hand in enumerate(hands):
-    total += g.royalties(hand, row_num)
+    total += g.royalties(hand, row_num, fl_bonus)
   return total
 
 # Returns whether or not the specified combo can be made from rows and draw. Possible input hands:
@@ -258,10 +259,6 @@ def is_makeable(rows, draw, combo, precom):
     else:
       raise RuntimeError("Unrecognized hand type {}".format(hand))
 
-  # print "Possible completions:", possible_completions
-  # print "Fillers needed:", fillers_needed
-  # print "Filler avoid:", filler_avoid
-
   # TODO: Also make sure flush is never accidentally made
 
   # Sort from most constrained to least constrained
@@ -323,7 +320,7 @@ def tabulate_suits(cards):
 # Given the current rows and a future draw, return the highest royalty value achievable from the
 # current hand.
 # If return_combo is True, it will also return the best combo (None if busted)
-def optimize_hand(rows, draw, return_combo=False):
+def optimize_hand(rows, draw, return_combo=False, fl_bonus=True):
   num_play = sum(g.ROW_LENGTHS) - sum(len(row) for row in rows)
   hands_for_row = []
   for row_num, row in enumerate(rows):
@@ -338,7 +335,7 @@ def optimize_hand(rows, draw, return_combo=False):
       continue
     possible_combos += [(row1, row2, row3)]
 
-  hands_with_royalties = sorted([(total_royalties(combo), combo) for combo in possible_combos], lambda x, y: -cmp(x,y))
+  hands_with_royalties = sorted([(total_royalties(combo, fl_bonus), combo) for combo in possible_combos], lambda x, y: -cmp(x,y))
   precom = {
     'all_row_values': [tabulate_values(row) for row in rows],
     'draw_values': tabulate_values(draw),
@@ -354,6 +351,14 @@ def optimize_hand(rows, draw, return_combo=False):
   if return_combo:
     return g.BUST_PENALTY, None
   return g.BUST_PENALTY
+
+# Converts a combo from this hand_optimizer to an actual hand
+def combo_to_hand(combo):
+  combo = copy.deepcopy(combo)
+  for i in xrange(len(combo)):
+    if combo[i][0] == 'Fl':
+      combo[i] == ('Fl',)
+  return combo
 
 # A custom version of g.compare_hands that ignores flush suit when
 # combos are passed in.
@@ -373,10 +378,10 @@ Output:
   past high card (since that information is not available from a combo). Pessimistically counts ties
   as losses (flush vs flush, for instance)
 '''
-def total_utility_adv(combo, opp_combos):
+def total_utility_adv(combo, opp_combos, fl_bonus=True):
   total = 0
   for row_num, hand in enumerate(combo):
-    total += g.royalties(hand, row_num)
+    total += g.royalties(hand, row_num, fl_bonus)
   for opp_combo in opp_combos:
     if opp_combo is None:
       total += 6. / len(opp_combos)
@@ -397,7 +402,7 @@ def total_utility_adv(combo, opp_combos):
 # Given the current rows and a future draw, return the highest average utility achievable from the
 # current hand against the listed opponent combos (in combo format).
 # If return_combo is True, it will also return the best combo (None if busted)
-def optimize_hand_adv(rows, draw, opp_combos, return_combo=False):
+def optimize_hand_adv(rows, draw, opp_combos, return_combo=False, fl_bonus=True):
   num_play = sum(g.ROW_LENGTHS) - sum(len(row) for row in rows)
   hands_for_row = []
   for row_num, row in enumerate(rows):
@@ -412,9 +417,9 @@ def optimize_hand_adv(rows, draw, opp_combos, return_combo=False):
       continue
     possible_combos += [(row1, row2, row3)]
 
-  hands_with_royalties = sorted([(total_utility_adv(combo, opp_combos), combo) for combo in possible_combos],
+  hands_with_royalties = sorted([(total_utility_adv(combo, opp_combos, fl_bonus), combo) for combo in possible_combos],
     lambda x, y: -cmp(x,y))
-  
+
   precom = {
     'all_row_values': [tabulate_values(row) for row in rows],
     'draw_values': tabulate_values(draw),

@@ -1,9 +1,13 @@
 import argparse
 import copy
-import numpy as np
 import json
+import numpy as np
+import random
+import time
 
-from game import PineappleGame1, PineappleGame2, BUST_PENALTY, FANTASYLAND_BONUS, FANTASYLAND_WORTH
+from game import PineappleGame1, PineappleGame2, BUST_PENALTY, FANTASYLAND_BONUS, FANTASYLAND_WORTH, NUM_FANTASYLAND_DRAW
+import game as g
+import hand_optimizer
 import policies
 
 parser = argparse.ArgumentParser(description='Simulate policy on pineapple.')
@@ -34,6 +38,8 @@ parser.add_argument('--num-oracle-sims', type=int, default=3,
                     help='number of simulations for oracle_eval to run per action result')
 parser.add_argument('--num-opp-sims', type=int, default=10,
                     help='number of opponent simulations to do for MC adversarial policies')
+parser.add_argument('--num-fl-sims', type=int, default=100,
+                    help='number of fantasyland simulations to do')
 parser.add_argument('--oracle-outcome-weighting', type=float, default=1.0,
                     help='exponent for how outcomes are weighted for the oracle')
 parser.add_argument('--distinguish-draws', action='store_true',
@@ -56,17 +62,19 @@ policy_name_to_policy = {
 def prompt_bool():
   return raw_input('(Y/N)? ').upper() == 'Y'
 
+start_time = time.time()
+
 player_game = PineappleGame2('player')
 opp_game = PineappleGame2('opponent')
 
 player_utilities = []
-player_non_bust_utilities = []
+player_non_bust_utilities = [] # Essentially royalties
 player_busts = 0
 player_fantasylands = 0
 player_final_hands = []
 
 opp_utilities = []
-opp_non_bust_utilities = []
+opp_non_bust_utilities = [] # Essentially royalties
 opp_busts = 0
 opp_fantasylands = 0
 opp_final_hands = []
@@ -89,7 +97,7 @@ for game_num in range(args.num_test + args.num_train):
     
   try:
     player_state = player_game.get_start_state(hero_first=args.hero_first)
-    opp_state = opp_game.get_start_state(hero_first=args.hero_first)
+    opp_state = opp_game.get_start_state(hero_first=not args.hero_first)
 
     while not player_game.is_end(player_state):
       def take_action(game, state, opp_state, policy):
@@ -122,7 +130,7 @@ for game_num in range(args.num_test + args.num_train):
       if player_game.is_bust(player_state):
         player_busts += 1
       player_non_bust_utilities += [player_royalties]
-      player_final_hands += [player_state.rows]
+      player_final_hands += [g.rows_to_hands(player_state.rows)]
 
     opp_utilities += [opp_utility - player_utility]
     if opp_game.is_fantasyland(opp_state):
@@ -131,7 +139,7 @@ for game_num in range(args.num_test + args.num_train):
       if opp_game.is_bust(opp_state):
         opp_busts += 1
       opp_non_bust_utilities += [opp_royalties]
-      opp_final_hands += [player_state.rows]
+      opp_final_hands += [g.rows_to_hands(player_state.rows)]
 
     if args.verbose or type(player_policy) == policies.HumanPolicy:
       print player_game.name, "\'s Final board:"
@@ -156,9 +164,49 @@ for game_num in range(args.num_test + args.num_train):
     game_num -= 1
     break
 
-# TODO: Add fantasyland value simulation based on average hands made
+print "\n"
 
-def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_num):
+# Simulates effect of fantasyland by averaging over multiple fantasyland configurations and final
+# configurations for the opponent found during simulation.
+
+# Note: The current version overestimates the performance of players against fantasyland since their
+# hands were created with knowledge of opponent draws.
+fl_train_cutoff = len(player_final_hands) / 2
+opp_fl_utilities = []
+player_fl_utilities = []
+opp_fl_worths = []
+player_fl_worths = []
+for fl_sim_num in xrange(args.num_fl_sims):
+  print "Performing FL sim {:4} / {:4}\r".format(fl_sim_num + 1, args.num_fl_sims),
+  draw = random.sample(player_game.cards, NUM_FANTASYLAND_DRAW)
+
+  # Optimize vs player
+  # TODO: make hand_optimizer return an actual set of rows making the best hand
+  worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, player_final_hands[:fl_train_cutoff],
+    return_combo=True, fl_bonus=False)
+  opp_fl_worths += [worth]
+  fl_hands = hand_optimizer.combo_to_hand(fl_combo)
+  # TODO: remove code duplication with utility calculation
+  for player_hands in player_final_hands[fl_train_cutoff:]:
+    opp_fl_utilities += [g.adv_utility(fl_hands, player_hands)]
+
+  # Optimize vs opp
+  worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, opp_final_hands[:fl_train_cutoff],
+    return_combo=True, fl_bonus=False)
+  player_fl_worths += [worth]
+  fl_hands = hand_optimizer.combo_to_hand(fl_combo)
+  for opp_hands in opp_final_hands[fl_train_cutoff:]:
+    player_fl_utilities += [g.adv_utility(fl_hands, opp_hands)]
+
+opp_fl_utilities = np.array(opp_fl_utilities)
+player_fl_utilities = np.array(player_fl_utilities)
+player_fl_worths = np.array(player_fl_worths)
+opp_fl_worths = np.array(opp_fl_worths)
+
+print ""
+
+def print_stats(name, utilities, non_bust_utilities, game_num, busts, fantasylands, fl_utilities,
+    fl_worths, opp_fantasylands, opp_fl_utilities):
   utilities = np.array(utilities)
   non_bust_utilities = np.array(non_bust_utilities)
   np.save('utilities', utilities)
@@ -168,11 +216,32 @@ def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_n
 
   fl = float(fantasylands) / num_test_played
   fl_std = np.sqrt(fl * (1 - fl) / num_test_played)
-  u = np.mean(non_bust_utilities)
-  u_std = np.std(non_bust_utilities) / np.sqrt(num_test_played)
-  num_std = np.sqrt(u_std ** 2 + (FANTASYLAND_WORTH * fl_std) ** 2)
+  opp_fl = float(opp_fantasylands) / num_test_played
+  opp_fl_std = np.sqrt(opp_fl * (1 - opp_fl) / num_test_played)
+  fl_util = np.mean(fl_utilities)
+  fl_util_std = np.std(fl_utilities) / np.sqrt(num_test_played)
+  opp_fl_util = np.mean(opp_fl_utilities)
+  opp_fl_util_std = np.std(opp_fl_utilities) / np.sqrt(num_test_played)
+
+  # Utility computation
+  u = np.mean(utilities)
+  u_std = np.mean(utilities) / np.sqrt(num_test_played)
+  denom = (1 + fl) * (1 + opp_fl)
+  denom_std = denom * np.sqrt((fl_std / (1 + fl)) ** 2 + (opp_fl_std / (1 + opp_fl)) ** 2)
+  num = u + fl * fl_util - opp_fl * opp_fl_util
+  num_std = np.sqrt(u_std ** 2 + (fl * fl_util_std) ** 2 + (fl_std * fl_util) ** 2\
+    + (opp_fl * opp_fl_util_std) ** 2 + (opp_fl_std * opp_fl_util) ** 2)
+  avg_util = num / denom
+  avg_util_std = num / denom * np.sqrt((num_std / num) ** 2 + (denom_std / denom) ** 2)
+
+  # RPH computation
+  fl_worth = np.mean(fl_worths)
+  fl_worth_std = np.std(fl_worths) / np.sqrt(num_test_played)
+  r = np.mean(non_bust_utilities)
+  r_std = np.std(non_bust_utilities) / np.sqrt(num_test_played)
+  num_std = np.sqrt(r_std ** 2 + (fl_worth * fl_std) ** 2 + (fl_worth_std * fl) ** 2)
   denom_std = fl_std
-  num = u + FANTASYLAND_WORTH * fl
+  num = r + fl_worth * fl
   denom = 1 + fl
   rph = num / denom
   rph_std = num / denom * np.sqrt((num_std / num) ** 2 + (denom_std / denom) ** 2)
@@ -181,11 +250,16 @@ def print_stats(name, utilities, non_bust_utilities, busts, fantasylands, game_n
   bust_std = np.sqrt(bust * (1 - bust) / num_test_played)
 
   print "\n", name
-  print "Average utility: {} +/- {}".format(np.mean(utilities), np.std(utilities) / np.sqrt(num_test_played))
+  print "Average utility: {} +/- {}".format(avg_util, avg_util_std)
   print "Royalties per hand: {} +/- {}".format(rph, rph_std)
   print "Bust %: {} / {} = {} +/- {}".format(busts, game_num, bust, bust_std)
   print "Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std)
+  print "Fantasyland utility: {} +/- {}".format(fl_util, fl_util_std)
 
-print_stats(player_game.name, player_utilities, player_non_bust_utilities, player_busts, player_fantasylands, game_num)
-print_stats(opp_game.name, opp_utilities, opp_non_bust_utilities, opp_busts, opp_fantasylands, game_num)
+print_stats(player_game.name, player_utilities, player_non_bust_utilities, game_num, player_busts, player_fantasylands,
+  player_fl_utilities, player_fl_worths, opp_fantasylands, opp_fl_utilities)
+print_stats(opp_game.name, opp_utilities, opp_non_bust_utilities, game_num, opp_busts, opp_fantasylands,
+  opp_fl_utilities, opp_fl_worths, player_fantasylands, player_fl_utilities)
+
+print "\nTook {} seconds.".format(time.time() - start_time)
 
