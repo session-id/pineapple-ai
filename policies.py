@@ -27,6 +27,7 @@ class HumanPolicy(BasePolicy):
 
   def get_action(self, state):
     while True:
+      self.game.print_state(state)
       try:
         # Action input format is Pos1 Pos2 ... PosN
         # Example: 0 0 1 2 0
@@ -38,7 +39,6 @@ class HumanPolicy(BasePolicy):
         return action
       except Exception as e:
         print 'Invalid action: {}'.format(e)
-      self.game.print_state(state)
 
 
 class RandomPolicy(BasePolicy):
@@ -382,6 +382,8 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
     opp_num_to_draw = table[sum(len(x) for x in state.opp_rows)]
     opp_rows = state.opp_rows
 
+    # TODO: Better adversarial fantasyland bonus calculation
+
     opp_num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
     if opp_num_to_draw <= 9:
       opp_combos = []
@@ -391,7 +393,7 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
           # state.remaining and outcome.remaining for any outcome should be equal
           draw = random.sample(state.remaining, num_to_draw_sim)
           # Assume opponent just plays to maximize their royalties
-          value, combo = hand_optimizer.optimize_hand(opp_rows, draw, True)
+          value, combo = hand_optimizer.optimize_hand(opp_rows, draw, return_combo=True)
           opp_combos += [combo]
       else:
         opp_combos = [[g.compute_hand(cards) for cards in opp_rows]]
@@ -399,15 +401,10 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
     else:
       value_fn = lambda rows, draw: hand_optimizer.optimize_hand(rows, draw)
 
-    # if self.game.num_to_draw(outcomes[0][0]) == 0:
-    #   eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
-    #   return max(eval_utilities)[1]
     num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
 
     def interpolate_action(prev, outcome, num_sims, round_num):
       values = []
-      # if num_to_draw == 0:
-      #   return self.game.utility(outcome)
       num_to_draw_sim = num_to_draw_map[num_to_draw]
       for _ in xrange(num_sims):
         draw = random.sample(outcome.remaining, num_to_draw_sim)
