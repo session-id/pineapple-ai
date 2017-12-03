@@ -284,6 +284,16 @@ def print_stats(name, utilities, non_bust_utilities, game_num, busts, fantasylan
   print "Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std)
   print "Fantasyland utility: {} +/- {}".format(fl_util, fl_util_std)
 
+  if args.final_state_file != '':
+    logging.info(name)
+    logging.info("Average utility: {} +/- {}".format(avg_util, avg_util_std))
+    logging.info("Non_fl utility: {} +/- {}".format(u, u_std))
+    logging.info("Royalties per hand: {} +/- {}".format(rph, rph_std))
+    logging.info("Bust %: {} / {} = {} +/- {}".format(busts, game_num, bust, bust_std))
+    logging.info("Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std))
+    logging.info("Fantasyland utility: {} +/- {}".format(fl_util, fl_util_std))
+    logging.info('')
+
 print_stats(player_game.name, player_utilities, player_non_bust_utilities, game_num, player_busts, player_fantasylands,
   player_fl_utilities, player_fl_worths, opp_fantasylands, opp_fl_utilities)
 print_stats(opp_game.name, opp_utilities, opp_non_bust_utilities, game_num, opp_busts, opp_fantasylands,
