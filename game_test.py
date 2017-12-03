@@ -261,6 +261,23 @@ def adv_game_utilities_test():
   state.rows = temp
   assert game.utility(state) == -10
 
+  state = PineappleGame2State(
+      rows = [
+        ['AC', 'QD', 'QH'],
+        ['AD', 'AS', '6C', '4S', 'KC'],
+        ['3D', '3H', '7C', '9C', 'KD']
+      ],
+      draw = None,
+      remaining = set(),
+      fake_remaining = set(),
+    )
+  state.opp_rows = [
+    ['4H', 'TC', '5H'],
+    ['9D', 'TD', 'JH', 'QC', '9S'],
+    ['8D', '8H', '6H', '8C', '6S']
+  ]
+  assert game.utility(state) == 12
+
   print "Adversarial game utilities test passed!"
 
 adv_game_utilities_test()

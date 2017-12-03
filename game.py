@@ -448,7 +448,7 @@ class PineappleGame2(PineappleGame1):
     for i in range(len(hands)):
       if (compare_hands(hands[i], opp_hands[i]) == 1):
         comparison_utility += 1
-      elif (compare_hands(hands[i], opp_hands[i]) == 1):
+      elif (compare_hands(hands[i], opp_hands[i]) == -1):
         comparison_utility -= 1
     if comparison_utility == 3:
       comparison_utility = 6
