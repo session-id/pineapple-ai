@@ -21,8 +21,8 @@ parser.add_argument('--player-policy', type=str, default='human',
 parser.add_argument('--opp-policy', type=str, default='human',
                     help='policy to use (human/random/baseline/neverbust/heuristic_neverbust/q_learning/oracle_eval'
                          '/q_learning2/vs_oracle_eval)')
-parser.add_argument('--hero-first', action='store_true',
-                    help='whether the hero goes first (default false)')
+# parser.add_argument('--hero-first', action='store_true',
+#                     help='whether the hero goes first (default false)')
 parser.add_argument('--print-util-freq', type=int, default=-1,
                     help='how frequently to print average utilities')
 parser.add_argument('--verbose', action='store_true',
@@ -96,21 +96,18 @@ for game_num in range(args.num_test + args.num_train):
     opp_policy.train = False
     
   try:
-    player_state = player_game.get_start_state(hero_first=args.hero_first)
-    opp_state = opp_game.get_start_state(hero_first=not args.hero_first)
+    player_state, opp_state = player_game.get_start_state()
 
     while not player_game.is_end(player_state):
       def take_action(game, state, opp_state, policy):
         if args.verbose:
           game.print_state(state)
         action_state = copy.deepcopy(state)
-        for card in opp_state.discard:
-          action_state.remaining.add(card)
+        action_state.remaining = state.fake_remaining
         action = policy.get_action(action_state)
         if args.verbose:
           print "Action:", action
-        new_state = game.get_outcome(state, action)
-        opp_state.opp_rows = state.rows
+        new_state = game.get_outcome(state, action, opp_state)
         if isinstance(policy, policies.RLPolicy):
           policy.incorporate_feedback(state, action, new_state)
         return new_state
@@ -176,27 +173,30 @@ opp_fl_utilities = []
 player_fl_utilities = []
 opp_fl_worths = []
 player_fl_worths = []
-for fl_sim_num in xrange(args.num_fl_sims):
-  print "Performing FL sim {:4} / {:4}\r".format(fl_sim_num + 1, args.num_fl_sims),
-  draw = random.sample(player_game.cards, NUM_FANTASYLAND_DRAW)
+try:
+  for fl_sim_num in xrange(args.num_fl_sims):
+    print "Performing FL sim {:4} / {:4}\r".format(fl_sim_num + 1, args.num_fl_sims),
+    draw = random.sample(player_game.cards, NUM_FANTASYLAND_DRAW)
 
-  # Optimize vs player
-  # TODO: make hand_optimizer return an actual set of rows making the best hand
-  worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, player_final_hands[:fl_train_cutoff],
-    return_combo=True, fl_bonus=False)
-  opp_fl_worths += [worth]
-  fl_hands = hand_optimizer.combo_to_hand(fl_combo)
-  # TODO: remove code duplication with utility calculation
-  for player_hands in player_final_hands[fl_train_cutoff:]:
-    opp_fl_utilities += [g.adv_utility(fl_hands, player_hands)]
+    # Optimize vs player
+    # TODO: make hand_optimizer return an actual set of rows making the best hand
+    worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, player_final_hands[:fl_train_cutoff],
+      return_combo=True, fl_bonus=False)
+    opp_fl_worths += [worth]
+    fl_hands = hand_optimizer.combo_to_hand(fl_combo)
+    # TODO: remove code duplication with utility calculation
+    for player_hands in player_final_hands[fl_train_cutoff:]:
+      opp_fl_utilities += [g.adv_utility(fl_hands, player_hands)]
 
-  # Optimize vs opp
-  worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, opp_final_hands[:fl_train_cutoff],
-    return_combo=True, fl_bonus=False)
-  player_fl_worths += [worth]
-  fl_hands = hand_optimizer.combo_to_hand(fl_combo)
-  for opp_hands in opp_final_hands[fl_train_cutoff:]:
-    player_fl_utilities += [g.adv_utility(fl_hands, opp_hands)]
+    # Optimize vs opp
+    worth, fl_combo = hand_optimizer.optimize_hand_adv([[], [], []], draw, opp_final_hands[:fl_train_cutoff],
+      return_combo=True, fl_bonus=False)
+    player_fl_worths += [worth]
+    fl_hands = hand_optimizer.combo_to_hand(fl_combo)
+    for opp_hands in opp_final_hands[fl_train_cutoff:]:
+      player_fl_utilities += [g.adv_utility(fl_hands, opp_hands)]
+except KeyboardInterrupt:
+  pass
 
 opp_fl_utilities = np.array(opp_fl_utilities)
 player_fl_utilities = np.array(player_fl_utilities)
@@ -251,6 +251,7 @@ def print_stats(name, utilities, non_bust_utilities, game_num, busts, fantasylan
 
   print "\n", name
   print "Average utility: {} +/- {}".format(avg_util, avg_util_std)
+  print "Non_fl utility: {} +/- {}".format(u, u_std)
   print "Royalties per hand: {} +/- {}".format(rph, rph_std)
   print "Bust %: {} / {} = {} +/- {}".format(busts, game_num, bust, bust_std)
   print "Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std)

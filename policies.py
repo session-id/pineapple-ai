@@ -27,7 +27,6 @@ class HumanPolicy(BasePolicy):
 
   def get_action(self, state):
     while True:
-      self.game.print_state(state)
       try:
         # Action input format is Pos1 Pos2 ... PosN
         # Example: 0 0 1 2 0
@@ -39,6 +38,7 @@ class HumanPolicy(BasePolicy):
         return action
       except Exception as e:
         print 'Invalid action: {}'.format(e)
+      self.game.print_state(state)
 
 
 class RandomPolicy(BasePolicy):
@@ -394,7 +394,7 @@ class AdvVarSimOracleEvalPolicy(BasePolicy):
           value, combo = hand_optimizer.optimize_hand(opp_rows, draw, True)
           opp_combos += [combo]
       else:
-        opp_combos = [[compute_hand(cards) for cards in opp_rows]]
+        opp_combos = [[g.compute_hand(cards) for cards in opp_rows]]
       value_fn = lambda rows, draw: hand_optimizer.optimize_hand_adv(rows, draw, opp_combos)
     else:
       value_fn = lambda rows, draw: hand_optimizer.optimize_hand(rows, draw)

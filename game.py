@@ -361,10 +361,11 @@ class PineappleGame1(object):
 # draw: whatever has been drawn
 # remaining: set of remaining cards
 class PineappleGame2State(PineappleGame1State):
-  def __init__(self, rows, draw, remaining):
+  def __init__(self, rows, draw, remaining, fake_remaining):
     super(PineappleGame2State, self).__init__(rows, draw, remaining)
     self.opp_rows = [[], [], []]
     self.discard = []
+    self.fake_remaining = fake_remaining
 
 '''
 A game of Pineapple allowing two players.
@@ -374,33 +375,48 @@ class PineappleGame2(PineappleGame1):
     super(PineappleGame2, self).__init__()
     self.name = name
 
-  def get_start_state(self, hero_first):
+  def get_start_state(self):
     cards = copy.deepcopy(self.cards)
-    if not hero_first:
-      opponent_draw = random.sample(cards, 5)
-      for card in opponent_draw:
-        cards.remove(card)
-    draw = random.sample(cards, 5)
-    for card in draw:
+    player_draw = random.sample(cards, 5)
+    for card in player_draw:
       cards.remove(card)
-    return PineappleGame2State(rows=[[], [], []], draw=draw, remaining=cards)
+    opp_draw = random.sample(cards, 5)
+    for card in opp_draw:
+      cards.remove(card)
+    player_fake_remaining = copy.deepcopy(self.cards)
+    for card in player_draw:
+      player_fake_remaining.remove(card)
+    opp_fake_remaining = copy.deepcopy(self.cards)
+    for card in opp_draw:
+      opp_fake_remaining.remove(card)
+    player_state = PineappleGame2State(rows=[[], [], []], draw=player_draw, remaining=copy.deepcopy(cards),
+      fake_remaining=player_fake_remaining)
+    opp_state = PineappleGame2State(rows=[[], [], []], draw=opp_draw, remaining=copy.deepcopy(cards),
+      fake_remaining=opp_fake_remaining)
+    return player_state, opp_state
 
   # Given the state and action, takes the action and returns a state.
   # Does not modify the provided state.
   # The input action does not need to be sorted.
-  def get_outcome(self, state, action):
+  # Also updates fake remaining fields.
+  def get_outcome(self, state, action, opp_state):
     state = copy.deepcopy(state)
     action = tuple(sorted(action))
     if action not in self.actions(state):
       raise RuntimeError("Illegal Action: {}".format(action))
-    for move in state.draw:
-      if (move not in action):
-        state.discard.append(move)
+    for card in state.draw:
+      if (card not in [a[0] for a in action]):
+        state.discard.append(card)
+      else:
+        opp_state.fake_remaining.remove(card)
     for card, placement in action:
       state.rows[placement] += [card]
+    opp_state.opp_rows = state.rows
     state.draw = random.sample(state.remaining, 3)
     for card in state.draw:
       state.remaining.remove(card)
+      state.fake_remaining.remove(card)
+      opp_state.remaining.remove(card)
     return state
 
   # Returns the total royalties earned by the current hand
@@ -430,9 +446,13 @@ class PineappleGame2(PineappleGame1):
 
   # Pretty print the state for display
   def print_state(self, state):
-    discarded = state.discard
+    missing = []
+    for card in self.cards:
+      if card not in state.fake_remaining and\
+          not any([card in row or card in state.draw for row in state.rows]):
+        missing += [card]
     print 'It is %s\'s turn!' % self.name
-    print 'Discard:', ' '.join(sort_cards(discarded))
+    print 'Missing:', ' '.join(sort_cards(missing))
     for row in state.rows:
       print '| ' + ' '.join(row)
     print 'Draw:', ' '.join(sorted(state.draw))
