@@ -46,7 +46,7 @@ parser.add_argument('--oracle-outcome-weighting', type=float, default=1.0,
                     help='exponent for how outcomes are weighted for the oracle')
 parser.add_argument('--distinguish-draws', action='store_true',
                     help='for feature extraction, whether to consider every num_to_draw differently')
-parser.add_argument('--final-state-file', type=str, default='',
+parser.add_argument('--log-file', type=str, default='',
                     help='file to write all final states to')
 args = parser.parse_args()
 
@@ -62,6 +62,8 @@ policy_name_to_policy = {
   'adv_vs_oracle_eval': policies.AdvVarSimOracleEvalPolicy,
   'q_learning2': policies.QLearningPolicy2
 }
+
+LOG_DIR = 'logs'
 
 def prompt_bool(prompt):
   return raw_input(prompt + ' (Y/N)? ').upper() == 'Y'
@@ -92,13 +94,14 @@ opp_policy = policy_name_to_policy[args.opp_policy](opp_game, args)
 if type(player_policy) == policies.HumanPolicy:
   args.print_util_freq = 1
 
-if args.final_state_file != '':
-  if os.path.isfile(args.final_state_file):
+if args.log_file != '':
+  log_file = os.path.join(LOG_DIR, args.log_file)
+  if os.path.isfile(log_file):
     if prompt_bool('Overwrite existing log?'):
-      os.remove(args.final_state_file)
+      os.remove(log_file)
     else:
       print "Appending to old log."
-  logging.basicConfig(filename=args.final_state_file, level=logging.INFO, format='%(message)s')
+  logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
   logging.info("Player policy: {}".format(args.player_policy))
   logging.info("Opp policy: {}\n".format(args.opp_policy))
 
@@ -163,7 +166,7 @@ for game_num in range(args.num_test + args.num_train):
       print player_game.name, "\'s Final board:"
       player_game.print_state(player_state)
 
-    if args.final_state_file != '':
+    if args.log_file != '':
       logging.info("Game: {}".format(game_num))
       logging.info("Utility: {}".format(player_utility))
       for row in player_state.rows:
@@ -284,7 +287,7 @@ def print_stats(name, utilities, non_bust_utilities, game_num, busts, fantasylan
   print "Fantasyland %: {} / {} = {} +/- {}".format(fantasylands, game_num, fl, fl_std)
   print "Fantasyland utility: {} +/- {}".format(fl_util, fl_util_std)
 
-  if args.final_state_file != '':
+  if args.log_file != '':
     logging.info(name)
     logging.info("Average utility: {} +/- {}".format(avg_util, avg_util_std))
     logging.info("Non_fl utility: {} +/- {}".format(u, u_std))
