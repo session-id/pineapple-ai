@@ -17,11 +17,11 @@ import time
 # print possible_hands([], 1, ['2H', '3S', '4C', '5C', '7H', 'TH', 'JH', 'QH', 'JS', '7C', '9H', 'AH', 'KH'])
 # print possible_hands([], 1, ['2H', '2S', 'JC', '8C', '7H', 'TH', 'JH', 'QH', 'JS', '7C', '9H', 'AH', 'KH'])
 
-# start = time.time()
-# for _ in xrange(1000):
-#   #possible_hands([], 1, ['2H', '2S', 'JC', '8C', '7H', 'TH', 'JH', 'QH', 'TC', 'TD', '8S', '8H'])
-#   optimize_hand([['TH', 'TC'], ['2H', '2D', '3S', '4C'], ['7S', '8S', '9S', 'TS']], ['TD', 'JC', 'QS', '2C', '3C', '4D'])
-# print "Average time for possible_hands: {}".format((time.time() - start) / 1000.)
+start = time.time()
+for _ in xrange(1000):
+  #possible_hands([], 1, ['2H', '2S', 'JC', '8C', '7H', 'TH', 'JH', 'QH', 'TC', 'TD', '8S', '8H'])
+  optimize_hand([['TH', 'TC'], ['2H', '2D', '3S', '4C'], ['7S', '8S', '9S', 'TS']], ['TD', 'JC', 'QS', '2C', '3C', '4D'])
+print "Average time for possible_hands: {}".format((time.time() - start) / 1000.)
 
 # print optimize_hand([['TH', 'TC'], ['2H', '2D', '3S', '4C'], ['8S', '9S', 'TS']], ['7S', '7D', 'TD', 'JC', 'QS', '2C', '3C', '4D'])
 # print optimize_hand([['TH', 'TC'], ['2H', '2D', '3S', '4C'], ['8S', '8C', 'TS']], ['7S', '7D', 'TD', 'JC', 'QS', '2C', '3C', '4D', '8H', 'TH'])
@@ -34,14 +34,14 @@ assert total_utility_adv([('2', 11), ('St', 10), ('Fl', 'C')], [[('2', 10), ('St
 assert total_utility_adv([('2', 11), ('St', 10), ('Fl', 'C')], [None, [('2', 10), ('St', 12), ('Fl', 'S')]]) == 16.5
 
 # Show that optimization is different when taking into account opponent hand
-print optimize_hand(
-    [['7H', '2D'], ['8S', '9S', 'TH', 'JH'], ['3D', '3H', '3C', 'KS', 'KD']],
-    ['7D', 'JS', 'AD'],
-    True
-  )
-print optimize_hand_adv(
-    [['7H', '2D'], ['8S', '9S', 'TH', 'JH'], ['3D', '3H', '3C', 'KS', 'KD']],
-    ['7D', 'JS', 'AD'],
-    [[('2', 3), ('2', 4), ('Fl', 'C')]],
-    True
-  )
+# print optimize_hand(
+#     [['7H', '2D'], ['8S', '9S', 'TH', 'JH'], ['3D', '3H', '3C', 'KS', 'KD']],
+#     ['7D', 'JS', 'AD'],
+#     True
+#   )
+# print optimize_hand_adv(
+#     [['7H', '2D'], ['8S', '9S', 'TH', 'JH'], ['3D', '3H', '3C', 'KS', 'KD']],
+#     ['7D', 'JS', 'AD'],
+#     [[('2', 3), ('2', 4), ('Fl', 'C')]],
+#     True
+#   )

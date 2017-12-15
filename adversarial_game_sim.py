@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import os
 import random
+import sys
 import time
 
 from game import PineappleGame1, PineappleGame2, BUST_PENALTY, FANTASYLAND_BONUS, FANTASYLAND_WORTH, NUM_FANTASYLAND_DRAW
@@ -102,6 +103,7 @@ if args.log_file != '':
     else:
       print "Appending to old log."
   logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
+  logging.info('{}'.format(sys.argv))
   logging.info("Player policy: {}".format(args.player_policy))
   logging.info("Opp policy: {}\n".format(args.opp_policy))
 

@@ -1,0 +1,964 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"featu",
+				"feature_extractor_2"
+			],
+			[
+				"feat",
+				"feature_extractor_2"
+			],
+			[
+				"polic",
+				"policy_name_to_policy"
+			],
+			[
+				"tripl",
+				"triple_5_top"
+			],
+			[
+				"eva",
+				"evaluationFunction"
+			],
+			[
+				"ev",
+				"eventsController"
+			],
+			[
+				"elasti",
+				"elasticX"
+			],
+			[
+				"SCENE",
+				"SCENE_WIDTH"
+			],
+			[
+				"Twitter",
+				"Twitter_Tweets_t"
+			],
+			[
+				"locations",
+				"locations"
+			],
+			[
+				"pickle",
+				"pickle"
+			],
+			[
+				"stra",
+				"strategies"
+			],
+			[
+				"in",
+				"in"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "policies.py",
+			"settings":
+			{
+				"buffer_size": 15317,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "game_sim.py",
+			"settings":
+			{
+				"buffer_size": 5852,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "import game"
+			}
+		},
+		{
+			"file": "fantasyland.py",
+			"settings":
+			{
+				"buffer_size": 1028,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "adversarial_game_sim.py",
+			"settings":
+			{
+				"buffer_size": 13489,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "game_test.py",
+			"settings":
+			{
+				"buffer_size": 8832,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "game.py",
+			"settings":
+			{
+				"buffer_size": 15404,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "hand_optimizer.py",
+			"settings":
+			{
+				"buffer_size": 16708,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "hand_optimizer_test.py",
+			"settings":
+			{
+				"buffer_size": 2942,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "feature_extractors.py",
+			"settings":
+			{
+				"buffer_size": 15376,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 81.0,
+		"last_filter": "revert",
+		"selected_items":
+		[
+			[
+				"revert",
+				"File: Revert"
+			],
+			[
+				"Package Control: Install Package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/logs/vs_oracle_eval_VS_heuristic_neverbust.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/logs/test.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/states.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/.gitignore",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw3-blackjack/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/game.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/adversarial_game_sim.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/policies.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/policies_test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/hand_optimizer_test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL06.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL05.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/all-draft.console.log",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/algebra/algebra-problems.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/fantasyland.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL04.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/cardinality_probabilities.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw8.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/hand_optimizer.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/feature_extractors_test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/feature_extractors.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/flush_probabilities.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw6-car/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw6-car/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/straight_probabilities.txt",
+		"/C/Users/Vinson/Desktop/passinfo.txt",
+		"/C/Users/Vinson/Desktop/temp.txt",
+		"/C/Users/Vinson/Desktop/NYU.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw3-blackjack/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/game_test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw2-reconstruct/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw2-reconstruct/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw4-pacman/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw6-car/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/profile.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/run_p3.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/courses.json",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/profile_example.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/profile3a2.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw5-scheduling/profile3a1.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/pineapple-ai/requirements.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw4-pacman/pacman.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL02.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw4-pacman/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw4-pacman/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw4-pacman/game.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/group.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/title.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/keywords.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/project/cas.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL01.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/VL03.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/all-problems.log",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KA01.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/TN12.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/TN14.tex",
+		"/C/Users/Vinson/AppData/Local/MiKTeX/2.9/miktex/log/pdflatex.log",
+		"/C/Users/Vinson/AppData/Roaming/MiKTeX/2.9/tex/latex/comment/comment.sty",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/Makefile",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/job_list",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/citadel/test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/input2.csv",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw3-blackjack/cs221hw3.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw3-blackjack/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/JD01.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW07.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW08.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW09.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW10.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW11.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW12.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW13.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW14.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW15.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX07.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX10.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX13.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX12.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX11.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX15.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX09.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX08.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX06.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/EX05.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW17.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/KW18.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/INITIALS",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/SMT/smt-2018/problems/TN02.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw2-reconstruct/cs221hw2.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw4.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw2-reconstruct/wordsegUtil.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw2-reconstruct/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/util.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/customgrader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw3.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw2.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw3",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/test.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/trade_pairer.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/output.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/input.csv",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Jobs/vatic code challenge/trade_pairer-old2.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/error-analysis",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/physics110hw1.tex",
+		"/C/Users/Vinson/Dropbox/Year 10 (2017-2018)/01-272/Puzzles/answers272.txt",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw0/grader.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw0/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw1-sentiment/cs221hw1",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/hw0/cs221hw0.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/physics110/hw1.tex",
+		"/C/Users/Vinson/Dropbox/Hitting down and out/Flipside/puzzlemaster_winners.txt",
+		"/C/Users/Vinson/Dropbox/Hitting down and out/Flipside/winners.txt",
+		"/C/Users/Vinson/AppData/Local/Temp/Temp1_foundations.zip/foundations/submission.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Senior/cs221/cs221hw0.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Junior/ee364a/ee364hw7.tex",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Junior/ee364a/final.tex",
+		"/C/Users/Vinson/Desktop/render_graph.py",
+		"/C/Users/Vinson/Documents/!School/!!!!Stanford/Junior/cs231a/CS231A-Screen-Stabilization/src/stereo_util.py",
+		"/C/Users/Vinson/Documents/My Games/Path of Exile/NeverSink's filter - 1-REGULAR.filter",
+		"/C/Program Files (x86)/Steam/SteamApps/common/Path of Exile/logs/Client.txt",
+		"/C/Users/Vinson/Documents/My Games/Path of Exile/neversink7semistrict.filter",
+		"/C/Users/Vinson/Downloads/NeverSink's filter - 4-VERY-STRICT.filter",
+		"/C/Users/Vinson/Downloads/NeverSink's filter - 1-REGULAR.filter"
+	],
+	"find":
+	{
+		"height": 40.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"final_state_file",
+			"$",
+			"logging.info",
+			"royalties\\(([^,]*,[^)]*)",
+			"royalties([^,]*,",
+			"args.verbose",
+			"game.print_state",
+			"compute_hand",
+			"print_state",
+			"game.print_state",
+			"args.verbose",
+			"opp_fantasylands",
+			"player_royalties",
+			"non_bust_utilities",
+			"fl_utilities_vs_opp",
+			"fl_utilities_vs_player",
+			"hands2_royalties",
+			"player",
+			"rows_to_hands",
+			"utilities = np.array(utilities)",
+			"total_royalties",
+			"14",
+			"[compute_hand(car",
+			"[compute_hand",
+			"[compute_hand(cards) for cards in rows]",
+			"[compute_Hand(cards) for cards in rows]",
+			"if is_bust",
+			"compute_hand",
+			"opp_policy",
+			"player_policy",
+			"opp_rows",
+			"def is_bust",
+			"assert is_end",
+			"def is_bust",
+			"SWEEP_SCORE",
+			"FANTASYLAND_BONUS",
+			"def royalties",
+			"action_state",
+			"PineappleGame2State",
+			"player_state",
+			"total_royalties",
+			"Discard:",
+			"print \"Discard:\"",
+			"hero_first",
+			"hero-first",
+			"HEAD",
+			"[compute_hand(cards",
+			"compute_hand",
+			"compute_hands",
+			"total_ro",
+			"g.FANT",
+			"game_num - args.num_train",
+			"total_royalties",
+			"x^2 - \\pi x",
+			"warning",
+			"possible",
+			"pair_value",
+			"triple",
+			"pair_value",
+			"triple_value",
+			"compare_hand",
+			"royalties",
+			"HAND_ORDER_DICT",
+			"draw_mults",
+			"row_mults",
+			"BUST_P",
+			"parse_pr",
+			"probability_lookup_table",
+			"feature_extractor_1",
+			"learning_rate",
+			"num_games",
+			":\n",
+			"dot",
+			"dotproduct",
+			"simulate",
+			"belief",
+			"weightedRand",
+			"get_or_variable",
+			"verify_schedule",
+			"self.profile",
+			"x",
+			"unary_factor",
+			"add_",
+			"add_qua",
+			"get_unassi",
+			"—",
+			"card_value",
+			"Invalid action:",
+			"CARD_VALUES",
+			"king_high",
+			"Illegal",
+			"deck_size",
+			"3",
+			"triplet",
+			"(pair",
+			"triple",
+			"width",
+			"Grid",
+			"10",
+			"capsule",
+			"state",
+			"gameState",
+			"getPacmanState",
+			"1b-0-basic",
+			"MultiAgentS",
+			"VL04",
+			"VL01",
+			"tex",
+			"FixedRL",
+			"simulate",
+			"explorationProb",
+			"simulate",
+			"computeStates",
+			"compareValueIter",
+			"self.queryWords[index]",
+			"possibleFills",
+			"self.actions",
+			"SegmentationProblem",
+			"#\\.",
+			"symbol_deques.append",
+			"defaul",
+			"means",
+			"extractCharacterFeatures",
+			"extractWordFeatures",
+			"WRONG",
+			"lousy",
+			"WRONG",
+			"not"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"log_file",
+			")",
+			"royalties(\\1, fl_bonus=False",
+			"player_fl_utilities",
+			"opp_fl_utilities",
+			"opp",
+			"FANT",
+			"num_test_played",
+			"\\pi x - x^2",
+			"filler_possible",
+			"single_value",
+			"pair",
+			"low_value",
+			"high_value",
+			"num_test",
+			"--",
+			"g.card_value",
+			"rows",
+			"pair_2",
+			"triple_5",
+			"cur_letters",
+			"$2 ($1), ",
+			"$2 ($1)",
+			"",
+			"arctan2",
+			"np",
+			",",
+			" ",
+			",",
+			" ",
+			",",
+			" ",
+			"([^<]+)",
+			" & ",
+			" ",
+			"",
+			" & ",
+			"\\t",
+			"",
+			"\\\\\\\\ \\\\hline",
+			"\\\\ \\hline",
+			"\\t",
+			"$1$\\\\rightarrow$",
+			"$\\\\rightarrow$",
+			"$\\rightarrow$",
+			"3",
+			"",
+			"\\n",
+			"FactorGraph",
+			"\\t",
+			"\\n",
+			"\\t",
+			"\\n",
+			"bm",
+			"]",
+			"[",
+			"h3",
+			"bullet-heading col-lg-3",
+			"",
+			"img-square",
+			"img-responsive",
+			"img-rounded",
+			"img-circle popover-img",
+			"col-sm-5",
+			"col-sm-6 col-lg-4",
+			"sophomore",
+			"junior",
+			"senior",
+			"individual-listing col-lg-4",
+			"data-toggle=\"popover\" data-trigger=\"hover\"",
+			"img-responsive",
+			"4",
+			"col-md-3 \\1",
+			"col-md-3 \\0",
+			"col-md-3 &",
+			"sm-9",
+			"sm-3",
+			"xs",
+			"/",
+			"3",
+			"sm",
+			"lg",
+			"fake_style=",
+			"\\1",
+			"lg-9",
+			"lg-3",
+			"<hr/>",
+			"navbar-inverse",
+			"img-rounded",
+			"&nbsp",
+			"soleApp",
+			" ",
+			"this._maxSpeed",
+			"x",
+			"z",
+			"x",
+			"d3_donut_searchbar",
+			"-",
+			"0",
+			"checkbox",
+			"\\t",
+			" ",
+			"\\t",
+			"\\infty",
+			"email_to_attendance",
+			"email",
+			"MergeSort",
+			"dataset_min",
+			"\", \"",
+			"",
+			"\", \"",
+			"\"",
+			"\", \"",
+			", ",
+			"\", \"",
+			"\",\"",
+			"'",
+			"]",
+			"[",
+			"6:00",
+			"^*",
+			", ",
+			"'",
+			"12:00",
+			",\\^n",
+			",\\\\n",
+			"\",\"",
+			"wk10"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "policies.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15317,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								124,
+								124
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "game_sim.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5852,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4432,
+								4433
+							]
+						],
+						"settings":
+						{
+							"auto_name": "import game",
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1302.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "fantasyland.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1028,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								858,
+								858
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "adversarial_game_sim.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13489,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3878,
+								3878
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1008.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "game_test.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8832,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8754,
+								8754
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3206.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "game.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15404,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15244,
+								15228
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5907.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "hand_optimizer.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16708,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								12165,
+								12165
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4134.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "hand_optimizer_test.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2942,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								28,
+								28
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "feature_extractors.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15376,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								527,
+								527
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 322.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "",
+	"replace":
+	{
+		"height": 72.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"C:\\Users\\Vinson\\Documents\\!School\\!!!!Stanford\\Sophomore\\cme161\\final_project\\cme161finalproject.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"Attribute"
+			]
+		],
+		"width": 392.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

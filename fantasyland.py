@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 import random
+import time
 
 import game as g
 import hand_optimizer
@@ -17,12 +18,14 @@ args = parser.parse_args()
 
 game = g.PineappleGame1()
 
+start = time.time()
 utilities = []
 for iter_num in xrange(args.num_games):
   print "{:5} / {:5}".format(iter_num, args.num_games), '\r',
   draw = random.sample(game.cards, args.num_cards)
   utilities += [hand_optimizer.optimize_hand([[], [], []], draw, fl_bonus=False)]
 print ''
+print "Took {} seconds.".format(time.time() - start)
 
 utilities = np.array(utilities)
 if args.save_file != '':

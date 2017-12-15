@@ -296,16 +296,10 @@ class VarSimOracleEvalPolicy(BasePolicy):
   def get_action(self, state):
     actions = self.game.actions(state)
     outcomes = [(self.game.sim_place_cards(state, action), action) for action in actions]
-    # if self.game.num_to_draw(outcomes[0][0]) == 0:
-    #   # Just return utilities
-    #   eval_utilities = [(self.game.utility(outcome), action) for outcome, action in outcomes]
-    #   return max(eval_utilities)[1]
     num_to_draw_map = {12: 8, 9: 6, 6: 5, 3: 3, 0: 0}
 
     def interpolate_action(prev, outcome, num_sims, round_num):
       values = []
-      # if self.game.num_to_draw(outcome) == 0:
-      #   return self.game.utility(outcome)
       num_to_draw = num_to_draw_map[self.game.num_to_draw(outcome)]
       for _ in xrange(num_sims):
         draw = random.sample(outcome.remaining, num_to_draw)
